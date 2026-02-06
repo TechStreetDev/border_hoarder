@@ -34,6 +34,6 @@ jobs:
           done
 
       - name: Upload Jarfile
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: build/libs/BorderHoarders-1.21.11-*.jar
