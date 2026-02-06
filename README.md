@@ -18,6 +18,20 @@ You can set up a Border Hoarders server using the following steps:
 4. Optionally install VoiceChat plugin for in-game voice communication.
 5. Start your server and enjoy the Border Hoarders experience!
 
+## Contribution
+
+Contributions are welcome and appreciated, if you would like to contribute:
+
+1. Fork the repository
+2. Create a new branch from `dev`
+3. Make your changes (please follow existing Java code style and conventions)
+4. Commit your changes with a clear message
+5. Push your branch to your fork
+6. Open a Pull Request against the `dev` branch
+
+Please ensure your code builds and passes any existing tests before submitting a Pull Request.
+By contributing, you agree that your contributions will be licensed under the same license as this project.
+
 ## License
 
 Copyright © 2026 TechStreetDev
