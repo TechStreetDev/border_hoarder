@@ -181,9 +181,13 @@ public class BorderHandler {
                 deaths += player.getStatistic(Statistic.DEATHS);
             }
 
-            createText(92.0f, Component.text("Items Collected: " + getTotalItems() + "/" + BoarderItem.values().length + " (" + (int) (((double) getTotalItems() / (double) BoarderItem.values().length) * 100) + "%)"));
-            createText(91.7f, Component.text("Area Unlocked: " + formatNumber(unlocked) + " / " + formatNumber(available) + " (" + (int) (((double) unlocked / (double) available) * 100) + "%)"));
-            createText(91.4f, Component.text("Deaths: " + formatNumber(deaths)));
+            createHologramText(92.0f, Component.text("Items Collected: " + getTotalItems() + "/" + BoarderItem.values().length + " (" + (int) (((double) getTotalItems() / (double) BoarderItem.values().length) * 100) + "%)"));
+            createHologramText(91.7f, Component.text("Area Unlocked: " + formatNumber(unlocked) + " / " + formatNumber(available) + " (" + (int) (((double) unlocked / (double) available) * 100) + "%)"));
+            createHologramText(91.4f, Component.text("Deaths: " + formatNumber(deaths)));
+
+            createWallText(0.5f, 94.0f, -12.0f, Component.text("Border Hoarders"));
+            createWallText(0.5f, 93.7f, -12.0f, Component.text("by TechStreet"));
+
         } catch (Exception e) {
             LOGGER.sendMessage(Component.text("[" + BorderHoardersPlugin.getPluginName() + "] Cannot sync border, " + e, Colours.RED));
         }
@@ -250,7 +254,7 @@ public class BorderHandler {
      * @param y         the Y-coordinate for the TextDisplay
      * @param component the text component to display
      */
-    public void createText(float y, Component component) {
+    public void createHologramText(float y, Component component) {
         TextDisplay armorStand = (TextDisplay) textDisplays.getOrDefault(y, null);
         if (armorStand == null) armorStand = spawnWorld.spawn(new Location(spawnWorld, 4.5, y, -6), TextDisplay.class);
         textDisplays.put(y, armorStand);
@@ -260,6 +264,25 @@ public class BorderHandler {
         armorStand.setAlignment(TextDisplay.TextAlignment.CENTER);
         armorStand.setSeeThrough(true);
         armorStand.setShadowed(true);
+    }
+
+    /**
+     * Creates or updates a TextDisplay at the specified Y-coordinate with the given component, intended for wall display.
+     *
+     * @param x         the X-coordinate for the TextDisplay
+     * @param y         the Y-coordinate for the TextDisplay
+     * @param z         the Z-coordinate for the TextDisplay
+     * @param component the text component to display
+     */
+    public void createWallText(float x, float y, float z, Component component) {
+        TextDisplay armorStand = (TextDisplay) textDisplays.getOrDefault(y, null);
+        if (armorStand == null) armorStand = spawnWorld.spawn(new Location(spawnWorld, x, y, z), TextDisplay.class);
+        textDisplays.put(y, armorStand);
+
+        armorStand.text(component);
+        armorStand.setAlignment(TextDisplay.TextAlignment.CENTER);
+        armorStand.setSeeThrough(true);
+        armorStand.setShadowed(false);
     }
 
     /**
