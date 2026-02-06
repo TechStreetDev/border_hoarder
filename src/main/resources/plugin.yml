@@ -1,0 +1,4 @@
+name: BorderHoarders
+version: '1.0.0'
+main: tech.techstreet.border.BorderHoardersPlugin
+api-version: '1.21'
