@@ -1,0 +1,39 @@
+name: Gradle Build
+
+on:
+  pull_request:
+    branches: [ dev ]
+  push:
+    branches: [ dev ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Grant execute permission for Gradle wrapper
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Rename JAR to include Minecraft version
+        run: |
+          for f in build/libs/BorderHoarders-*-all.jar; do
+            base=$(basename "$f" -all.jar)
+            mv "$f" "build/libs/BorderHoarders-1.21.11-${base#BorderHoarders-}.jar"
+          done
+
+      - name: Upload Jarfile
+        uses: actions/upload-artifact@v3
+        with:
+          path: build/libs/BorderHoarders-1.21.11-*.jar
