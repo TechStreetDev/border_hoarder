@@ -36,7 +36,7 @@ By contributing, you agree that your contributions will be licensed under the sa
 
 Copyright © 2026 TechStreetDev
 
-Licensed under the GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later).
+Licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
 
 If you run a modified version of this software on a server and allow users
 to interact with it over a network, you must make the complete corresponding
