@@ -23,7 +23,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import tech.techstreet.border.BorderHoardersPlugin;
+import tech.techstreet.border.BorderHoarderPlugin;
 import tech.techstreet.border.gui.Button;
 import tech.techstreet.border.gui.Menu;
 import tech.techstreet.border.gui.item.BaseItems;
@@ -44,14 +44,14 @@ public class MissingItemsMenu extends Menu {
         super(user);
         this.page = page;
         this.isSearch = false;
-        this.missingItems = BorderHoardersPlugin.getBorderHandler().getMissingItems();
+        this.missingItems = BorderHoarderPlugin.getBorderHandler().getMissingItems();
     }
 
     public MissingItemsMenu(User user, int page, String query) {
         super(user);
         this.page = page;
         this.isSearch = true;
-        this.missingItems = BorderHoardersPlugin.getBorderHandler().getMissingItems()
+        this.missingItems = BorderHoarderPlugin.getBorderHandler().getMissingItems()
                 .stream().filter(item -> item.name().toLowerCase().replaceAll("_", "").contains(query)).toList();
     }
 

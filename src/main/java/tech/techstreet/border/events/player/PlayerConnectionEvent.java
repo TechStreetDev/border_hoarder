@@ -24,7 +24,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import tech.techstreet.border.BorderHoardersPlugin;
+import tech.techstreet.border.BorderHoarderPlugin;
 import tech.techstreet.border.lib.border.ProgressHandler;
 import tech.techstreet.border.lib.user.User;
 import tech.techstreet.border.lib.user.UserManager;
@@ -44,12 +44,12 @@ public class PlayerConnectionEvent implements Listener {
             return;
         }
 
-        if (BorderHoardersPlugin.getBorderHandler() == null || BorderHoardersPlugin.getBorderHandler().getCompletedItems() == null) {
+        if (BorderHoarderPlugin.getBorderHandler() == null || BorderHoarderPlugin.getBorderHandler().getCompletedItems() == null) {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Component.text("Server is not started yet."));
             return;
         }
 
-        if (BorderHoardersPlugin.getBorderHandler().getSpawnWorld() == null) {
+        if (BorderHoarderPlugin.getBorderHandler().getSpawnWorld() == null) {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Component.text("Server world is not setup correctly."));
         }
     }
@@ -63,7 +63,7 @@ public class PlayerConnectionEvent implements Listener {
     public void onEvent(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         UserManager.update(player);
-        BorderHoardersPlugin.getBorderHandler().syncBoarder();
+        BorderHoarderPlugin.getBorderHandler().syncBoarder();
         User user = UserManager.of(player);
 
         // Send player back to previous state, but default to the lobby

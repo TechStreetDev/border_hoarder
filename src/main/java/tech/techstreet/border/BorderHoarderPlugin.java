@@ -24,8 +24,8 @@ import tech.techstreet.border.events.EventHandler;
 import tech.techstreet.border.gui.item.Colours;
 import tech.techstreet.border.lib.border.BorderHandler;
 
-public final class BorderHoardersPlugin extends JavaPlugin {
-    private static BorderHoardersPlugin instance;
+public final class BorderHoarderPlugin extends JavaPlugin {
+    private static BorderHoarderPlugin instance;
     private static BorderHandler borderHandler;
 
     private static final String MINECRAFT_VERSION = "1.21.11";
@@ -66,7 +66,7 @@ public final class BorderHoardersPlugin extends JavaPlugin {
      *
      * @return the BorderExplorerPlugin instance.
      */
-    public static BorderHoardersPlugin getInstance() {
+    public static BorderHoarderPlugin getInstance() {
         return instance;
     }
 

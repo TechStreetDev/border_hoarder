@@ -18,23 +18,24 @@ package tech.techstreet.border.events;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
-import tech.techstreet.border.BorderHoardersPlugin;
+import tech.techstreet.border.BorderHoarderPlugin;
 import tech.techstreet.border.events.player.PlayerClickListener;
 import tech.techstreet.border.events.player.PlayerConnectionEvent;
 import tech.techstreet.border.events.player.PlayerDamageEvent;
 import tech.techstreet.border.events.player.PlayerHandleItemEvent;
 import tech.techstreet.border.events.world.WorldBlockFallEvent;
+import tech.techstreet.border.events.world.WorldEntityDeathEvent;
 import tech.techstreet.border.events.world.WorldPortalEvent;
 
 public class EventHandler {
-    private final BorderHoardersPlugin instance;
+    private final BorderHoarderPlugin instance;
 
     /**
      * Constructor for EventHandler.
      *
      * @param instance The main plugin instance.
      */
-    public EventHandler(BorderHoardersPlugin instance) {
+    public EventHandler(BorderHoarderPlugin instance) {
         this.instance = instance;
     }
 
@@ -69,6 +70,7 @@ public class EventHandler {
                 new PlayerDamageEvent(),
 
                 new WorldBlockFallEvent(),
+                new WorldEntityDeathEvent(),
                 new WorldPortalEvent()
         );
     }

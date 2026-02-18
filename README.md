@@ -1,22 +1,22 @@
-# Border Hoarders
+# Border Hoarder
 
-Border Hoarders is a survival challenge map where you begin in a tiny 1×1 world. Every time you collect a new unique
+Border Hoarder is a survival challenge map where you begin in a tiny 1×1 world. Every time you collect a new unique
 item, the world border expands by one block, slowly turning scarcity into opportunity. Plan carefully, explore
 efficiently, and push the limits of what you can build with what the world gives you.
 
-A successor to Border Hoarders created by SimonDMC and designed for modern versions of the game, with refined mechanics
+A successor to Border Hoarder created by SimonDMC and designed for modern versions of the game, with refined mechanics
 and smoother progression.
 Use /lobby to track your progress and see how far you’ve pushed the border.
 
 ## Manual Server Setup
 
-You can set up a Border Hoarders server using the following steps:
+You can set up a Border Hoarder server using the following steps:
 
 1. Download the files from the [download page](https://resourcelab.io/resource/1b414ea9).
 2. Extract the downloaded ZIP file to a folder on your server.
 3. Make sure your server is running Paper, with Minecraft version 1.21.11.
 4. Optionally install VoiceChat plugin for in-game voice communication.
-5. Start your server and enjoy the Border Hoarders experience!
+5. Start your server and enjoy the Border Hoarder experience!
 
 ## Contribution
 

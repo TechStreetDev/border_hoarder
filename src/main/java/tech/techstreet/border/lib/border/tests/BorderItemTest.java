@@ -20,7 +20,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.ConsoleCommandSender;
-import tech.techstreet.border.BorderHoardersPlugin;
+import tech.techstreet.border.BorderHoarderPlugin;
 import tech.techstreet.border.gui.item.Colours;
 import tech.techstreet.border.lib.item.BlacklistedItems;
 import tech.techstreet.border.lib.item.BoarderItem;
@@ -48,13 +48,13 @@ public class BorderItemTest {
         if (!itemStrings.isEmpty()) {
             try {
                 for (String itemString : itemStrings) {
-                    LOGGER.sendMessage(Component.text("[" + BorderHoardersPlugin.getPluginName() + "] Missing: Item is not in BlacklistedItems or BoarderItem enum: " + itemString, Colours.RED));
+                    LOGGER.sendMessage(Component.text("[" + BorderHoarderPlugin.getPluginName() + "] Missing: Item is not in BlacklistedItems or BoarderItem enum: " + itemString, Colours.RED));
                 }
 
                 File file = new File("missing-output.txt");
                 Files.writeString(file.toPath(), String.join(",\n", itemStrings));
             } catch (Exception e) {
-                LOGGER.sendMessage(Component.text("[" + BorderHoardersPlugin.getPluginName() + "] Failed to write missing items to file.", Colours.RED));
+                LOGGER.sendMessage(Component.text("[" + BorderHoarderPlugin.getPluginName() + "] Failed to write missing items to file.", Colours.RED));
             }
         }
 
@@ -65,7 +65,7 @@ public class BorderItemTest {
 
         for (BoarderItem boarderItem : BoarderItem.values()) {
             if (blacklistedItems.contains(boarderItem.name())) {
-                LOGGER.sendMessage(Component.text("[" + BorderHoardersPlugin.getPluginName() + "] Conflict: Item in both BlacklistedItems & BoarderItem enum: " + boarderItem.name(), Colours.RED));
+                LOGGER.sendMessage(Component.text("[" + BorderHoarderPlugin.getPluginName() + "] Conflict: Item in both BlacklistedItems & BoarderItem enum: " + boarderItem.name(), Colours.RED));
             }
         }
 
@@ -76,13 +76,13 @@ public class BorderItemTest {
 
         for (BoarderItem boarderItem : BoarderItem.values()) {
             if (!items.contains(boarderItem.name())) {
-                LOGGER.sendMessage(Component.text("[" + BorderHoardersPlugin.getPluginName() + "] Deprecated: Item in BoarderItem enum which is no longer in Minecraft: " + boarderItem.name(), Colours.RED));
+                LOGGER.sendMessage(Component.text("[" + BorderHoarderPlugin.getPluginName() + "] Deprecated: Item in BoarderItem enum which is no longer in Minecraft: " + boarderItem.name(), Colours.RED));
             }
         }
 
         for (BlacklistedItems blacklistedItem : BlacklistedItems.values()) {
             if (!items.contains(blacklistedItem.name())) {
-                LOGGER.sendMessage(Component.text("[" + BorderHoardersPlugin.getPluginName() + "] Deprecated: Item in BlacklistedItems enum which is no longer in Minecraft: " + blacklistedItem.name(), Colours.RED));
+                LOGGER.sendMessage(Component.text("[" + BorderHoarderPlugin.getPluginName() + "] Deprecated: Item in BlacklistedItems enum which is no longer in Minecraft: " + blacklistedItem.name(), Colours.RED));
             }
         }
     }

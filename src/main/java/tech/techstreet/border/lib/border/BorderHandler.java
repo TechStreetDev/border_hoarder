@@ -26,7 +26,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.*;
-import tech.techstreet.border.BorderHoardersPlugin;
+import tech.techstreet.border.BorderHoarderPlugin;
 import tech.techstreet.border.gui.item.Colours;
 import tech.techstreet.border.lib.border.tests.BorderItemTest;
 import tech.techstreet.border.lib.item.BoarderItem;
@@ -43,11 +43,11 @@ public class BorderHandler {
     private final HashMap<Float, Entity> textDisplays = new HashMap<>();
     private static final ConsoleCommandSender LOGGER = Bukkit.getConsoleSender();
     private static NamespacedKey counterKey;
-    private final BorderHoardersPlugin instance;
+    private final BorderHoarderPlugin instance;
     private Scoreboard scoreboard;
     private World spawnWorld;
 
-    public BorderHandler(BorderHoardersPlugin instance) {
+    public BorderHandler(BorderHoarderPlugin instance) {
         this.instance = instance;
     }
 
@@ -66,19 +66,19 @@ public class BorderHandler {
                 spawnWorld.setDifficulty(Difficulty.PEACEFUL);
             }
 
-            counterKey = new NamespacedKey(BorderHoardersPlugin.getInstance(), "counter");
+            counterKey = new NamespacedKey(BorderHoarderPlugin.getInstance(), "counter");
             completedItems = ProgressHandler.loadWorld();
             instance.getServer().getScheduler().scheduleSyncRepeatingTask(instance, () -> {
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     for (ItemStack item : player.getInventory().getContents()) {
                         if (item != null) {
-                            BorderHoardersPlugin.getBorderHandler().addCompletedItem(player, item.getType());
+                            BorderHoarderPlugin.getBorderHandler().addCompletedItem(player, item.getType());
                         }
                     }
                 }
             }, 40, 40);
 
-            instance.getServer().getScheduler().runTask(instance, () -> BorderHoardersPlugin.getBorderHandler().syncBoarder());
+            instance.getServer().getScheduler().runTask(instance, () -> BorderHoarderPlugin.getBorderHandler().syncBoarder());
             instance.getServer().getScheduler().scheduleSyncRepeatingTask(instance, () -> {
                 // Write all auto saved player locations to the map.
                 for (Player player : Bukkit.getOnlinePlayers()) {
@@ -109,7 +109,7 @@ public class BorderHandler {
             BorderItemTest.run();
             Bukkit.getScheduler().runTaskLater(instance, this::syncBoarder, 20);
         } catch (Exception e) {
-            LOGGER.sendMessage(Component.text("[" + BorderHoardersPlugin.getPluginName() + "] Failed to retrieve saved items file.", Colours.RED));
+            LOGGER.sendMessage(Component.text("[" + BorderHoarderPlugin.getPluginName() + "] Failed to retrieve saved items file.", Colours.RED));
             completedItems = null;
         }
 
@@ -144,7 +144,7 @@ public class BorderHandler {
             World worldEnd = Bukkit.getWorld("world_the_end");
 
             if (world == null || worldNether == null || worldEnd == null) {
-                LOGGER.sendMessage(Component.text("[" + BorderHoardersPlugin.getPluginName() + "] Cannot sync border, one or more worlds are missing.", Colours.RED));
+                LOGGER.sendMessage(Component.text("[" + BorderHoarderPlugin.getPluginName() + "] Cannot sync border, one or more worlds are missing.", Colours.RED));
                 return;
             }
 
@@ -188,7 +188,7 @@ public class BorderHandler {
             createWallText(0.5f, 93.7f, -12.0f, Component.text("by TechStreet"));
 
         } catch (Exception e) {
-            LOGGER.sendMessage(Component.text("[" + BorderHoardersPlugin.getPluginName() + "] Cannot sync border, " + e, Colours.RED));
+            LOGGER.sendMessage(Component.text("[" + BorderHoarderPlugin.getPluginName() + "] Cannot sync border, " + e, Colours.RED));
         }
     }
 

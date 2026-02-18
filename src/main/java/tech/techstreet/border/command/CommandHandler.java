@@ -26,7 +26,7 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import tech.techstreet.border.BorderHoardersPlugin;
+import tech.techstreet.border.BorderHoarderPlugin;
 import tech.techstreet.border.command.impl.LobbyCommand;
 import tech.techstreet.border.command.impl.SearchCommand;
 
@@ -40,7 +40,7 @@ public class CommandHandler {
      *
      * @param instance The main plugin instance.
      */
-    public CommandHandler(BorderHoardersPlugin instance) {
+    public CommandHandler(BorderHoarderPlugin instance) {
         final Function<CommandTree<CommandSender>, CommandExecutionCoordinator<CommandSender>> executionCoordinatorFunction =
                 CommandExecutionCoordinator.simpleCoordinator();
 
