@@ -17,6 +17,7 @@
 package tech.techstreet.border;
 
 import net.kyori.adventure.text.Component;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import tech.techstreet.border.command.CommandHandler;
@@ -27,7 +28,6 @@ import tech.techstreet.border.lib.border.BorderHandler;
 public final class BorderHoarderPlugin extends JavaPlugin {
     private static BorderHoarderPlugin instance;
     private static BorderHandler borderHandler;
-
     private static final String MINECRAFT_VERSION = "1.21.11";
 
     /**
@@ -45,8 +45,10 @@ public final class BorderHoarderPlugin extends JavaPlugin {
             Bukkit.getConsoleSender().sendMessage(Component.text("[" + getPluginName() + "] This plugin supports Minecraft " + MINECRAFT_VERSION + " only, you are running " + Bukkit.getServer().getMinecraftVersion(), Colours.RED));
         }
 
+        Bukkit.motd(Component.text("Border Hoarder v" + this.getDescription().getVersion()));
         CommandHandler commandHandler = new CommandHandler(instance);
         EventHandler eventHandler = new EventHandler(instance);
+        Metrics metrics = new Metrics(this, 29626);
 
         commandHandler.load();
         eventHandler.load();

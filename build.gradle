@@ -1,11 +1,11 @@
 plugins {
     id 'java'
     id("xyz.jpenilla.run-paper") version "2.3.1"
-    id "com.github.johnrengelman.shadow" version "8.1.1"
+    id("com.gradleup.shadow") version "9.3.1"
 }
 
 group = 'tech.techstreet.border'
-version = '2.0.0'
+version = '2.0.1'
 build.dependsOn shadowJar
 
 repositories {
@@ -19,6 +19,7 @@ repositories {
 dependencies {
     implementation("cloud.commandframework:cloud-paper:1.5.0")                  // Cloud Paper Framework
     implementation("cloud.commandframework:cloud-minecraft-extras:1.5.0")       // Cloud Extras
+    implementation("org.bstats:bstats-bukkit:3.1.0")                            // bStats Metrics
 
     compileOnly("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
 }
@@ -42,13 +43,14 @@ java {
     }
 }
 
-tasks.withType(Jar).configureEach {
-    from("LICENSE") {
-        into("")
-    }
-}
+tasks.shadowJar {
+    archiveBaseName.set(project.name)
+    archiveClassifier.set("all")
 
-tasks.withType(Jar).configureEach {
+    relocate("org.bstats", "tech.techstreet.border.shadow.bstats")
+    from("LICENSE") { into("") }
+    from(sourceSets.main.output)
+
     manifest {
         attributes(
                 "Implementation-Title": project.name,
@@ -57,6 +59,8 @@ tasks.withType(Jar).configureEach {
                 "License-URL": "https://www.gnu.org/licenses/agpl-3.0.html"
         )
     }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 tasks.withType(JavaCompile).configureEach {

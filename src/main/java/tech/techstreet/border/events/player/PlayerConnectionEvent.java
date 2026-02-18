@@ -29,6 +29,7 @@ import tech.techstreet.border.lib.border.ProgressHandler;
 import tech.techstreet.border.lib.user.User;
 import tech.techstreet.border.lib.user.UserManager;
 import tech.techstreet.border.lib.user.UserState;
+import tech.techstreet.border.lib.user.UserStats;
 
 public class PlayerConnectionEvent implements Listener {
 
@@ -67,7 +68,7 @@ public class PlayerConnectionEvent implements Listener {
         User user = UserManager.of(player);
 
         // Send player back to previous state, but default to the lobby
-        user.setState(ProgressHandler.getLastStates().getOrDefault(player.getUniqueId(), UserState.LOBBY));
+        user.setState(ProgressHandler.getLastStats().getOrDefault(player.getUniqueId(), new UserStats(UserState.LOBBY, 20, 20, 20)).state());
     }
 
     /**

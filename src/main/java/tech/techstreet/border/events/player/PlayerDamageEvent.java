@@ -29,7 +29,6 @@ public class PlayerDamageEvent implements Listener {
 
     /**
      * Prevents players in the LOBBY state from taking damage.
-     *
      * @param event The EntityDamageEvent to handle.
      */
     @EventHandler
@@ -44,7 +43,6 @@ public class PlayerDamageEvent implements Listener {
 
     /**
      * Prevents players in the LOBBY state from losing hunger.
-     *
      * @param event The FoodLevelChangeEvent to handle.
      */
     @EventHandler

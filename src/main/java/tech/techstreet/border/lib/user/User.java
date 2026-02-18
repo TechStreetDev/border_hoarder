@@ -76,9 +76,13 @@ public class User {
 
         if (state == UserState.PLAY) {
             Location location = ProgressHandler.getLastLocations().get(player.getUniqueId());
+            UserStats stats = ProgressHandler.getLastStats().getOrDefault(player.getUniqueId(), new UserStats(UserState.PLAY, 20, 20, 20));
             if (location == null) location = new Location(Bukkit.getWorld("world"), 576.50, 67, -517.50);
 
             player.teleport(location);
+            player.setHealth(stats.health());
+            player.setFoodLevel(stats.food());
+            player.setSaturation(stats.saturation());
             player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0F, 1.0F);
             player.setScoreboard(BorderHoarderPlugin.getBorderHandler().getScoreboard());
             player.setGameMode(GameMode.SURVIVAL);
@@ -86,6 +90,9 @@ public class User {
 
         if (state == UserState.LOBBY) {
             player.teleport(new Location(Bukkit.getWorld("world_spawn"), 0.5, 90, 0.5, 180, 0));
+            player.setHealth(20);
+            player.setFoodLevel(20);
+            player.setSaturation(20);
             player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0F, 1.0F);
             player.setScoreboard(BorderHoarderPlugin.getBorderHandler().getScoreboard());
             player.setGameMode(GameMode.SURVIVAL);

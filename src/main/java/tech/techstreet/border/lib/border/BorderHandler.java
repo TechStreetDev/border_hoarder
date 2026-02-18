@@ -33,6 +33,7 @@ import tech.techstreet.border.lib.item.BoarderItem;
 import tech.techstreet.border.lib.user.User;
 import tech.techstreet.border.lib.user.UserManager;
 import tech.techstreet.border.lib.user.UserState;
+import tech.techstreet.border.lib.user.UserStats;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -85,9 +86,18 @@ public class BorderHandler {
                     User user = UserManager.of(player);
 
                     if (user.getState() == UserState.PLAY) {
-                        ProgressHandler.updateState(player.getUniqueId(), player.getLocation(), UserState.PLAY);
+                        ProgressHandler.updateState(player.getUniqueId(), player.getLocation(), new UserStats(UserState.PLAY, player.getFoodLevel(), player.getSaturation(), player.getHealth()));
                     } else {
-                        ProgressHandler.updateState(player.getUniqueId(), ProgressHandler.getLastLocations().get(player.getUniqueId()), UserState.LOBBY);
+                        ProgressHandler.updateState(
+                                player.getUniqueId(),
+                                ProgressHandler.getLastLocations().get(player.getUniqueId()),
+                                new UserStats(
+                                        UserState.LOBBY,
+                                        ProgressHandler.getLastStats().get(player.getUniqueId()).food(),
+                                        ProgressHandler.getLastStats().get(player.getUniqueId()).saturation(),
+                                        ProgressHandler.getLastStats().get(player.getUniqueId()).health()
+                                )
+                        );
                     }
                 }
 
@@ -124,11 +134,20 @@ public class BorderHandler {
         User user = UserManager.of(player);
 
         if (user.getState() == UserState.PLAY) {
-            ProgressHandler.updateState(player.getUniqueId(), player.getLocation(), UserState.PLAY);
+            ProgressHandler.updateState(player.getUniqueId(), player.getLocation(), new UserStats(UserState.PLAY, player.getFoodLevel(), player.getSaturation(), player.getHealth()));
         }
 
         if (user.getState() == UserState.LOBBY) {
-            ProgressHandler.updateState(player.getUniqueId(), ProgressHandler.getLastLocations().get(player.getUniqueId()), UserState.LOBBY);
+            ProgressHandler.updateState(
+                    player.getUniqueId(),
+                    ProgressHandler.getLastLocations().get(player.getUniqueId()),
+                    new UserStats(
+                            UserState.LOBBY,
+                            ProgressHandler.getLastStats().get(player.getUniqueId()).food(),
+                            ProgressHandler.getLastStats().get(player.getUniqueId()).saturation(),
+                            ProgressHandler.getLastStats().get(player.getUniqueId()).health()
+                    )
+            );
         }
 
         ProgressHandler.saveWorld(completedItems);
