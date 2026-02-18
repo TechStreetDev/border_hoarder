@@ -27,7 +27,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import tech.techstreet.border.BorderHoardersPlugin;
+import tech.techstreet.border.BorderHoarderPlugin;
 import tech.techstreet.border.gui.Button;
 import tech.techstreet.border.gui.MenuInstance;
 import tech.techstreet.border.gui.impl.MissingItemsMenu;
@@ -91,7 +91,7 @@ public class PlayerClickListener implements Listener {
 
         for (ItemStack item : player.getInventory().getContents()) {
             if (item != null) {
-                BorderHoardersPlugin.getBorderHandler().addCompletedItem(player, item.getType());
+                BorderHoarderPlugin.getBorderHandler().addCompletedItem(player, item.getType());
             }
         }
     }
