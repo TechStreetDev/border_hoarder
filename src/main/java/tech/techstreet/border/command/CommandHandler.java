@@ -29,6 +29,7 @@ import org.bukkit.command.CommandSender;
 import tech.techstreet.border.BorderHoarderPlugin;
 import tech.techstreet.border.command.impl.LobbyCommand;
 import tech.techstreet.border.command.impl.SearchCommand;
+import tech.techstreet.border.command.impl.UpdateCommand;
 
 import java.util.function.Function;
 
@@ -102,7 +103,8 @@ public class CommandHandler {
     public void load() {
         register(
                 new LobbyCommand(),
-                new SearchCommand()
+                new SearchCommand(),
+                new UpdateCommand()
         );
     }
 }

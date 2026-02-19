@@ -18,6 +18,7 @@ package tech.techstreet.border.lib.border;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.Style;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.*;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Display;
@@ -49,6 +50,7 @@ public class BorderHandler {
     private World spawnWorld;
 
     public BorderHandler(BorderHoarderPlugin instance) {
+        new Metrics(BorderHoarderPlugin.getInstance(), 29626);
         this.instance = instance;
     }
 

@@ -1,0 +1,45 @@
+/*
+ * Copyright (C) 2026 TechStreetDev
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License version 3
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package tech.techstreet.border.command.impl;
+
+import cloud.commandframework.Command;
+import cloud.commandframework.paper.PaperCommandManager;
+import net.kyori.adventure.text.Component;
+import org.bukkit.command.CommandSender;
+import tech.techstreet.border.BorderHoarderPlugin;
+import tech.techstreet.border.command.SystemCommand;
+
+public class UpdateCommand extends SystemCommand {
+
+    /**
+     * Creates a command for the given command manager.
+     *
+     * @param manager The command manager to create the command for.
+     * @return The created command.
+     */
+    @Override
+    public Command<CommandSender> createCommand(final PaperCommandManager<CommandSender> manager) {
+        return manager.commandBuilder("update")
+                .handler(commandContext -> {
+                    if (BorderHoarderPlugin.getInstance().getConfig().getBoolean("update.auto-update", true)) {
+                        commandContext.getSender().sendMessage(Component.text("Auto-update is enabled, this command is disabled."));
+                    } else {
+                        BorderHoarderPlugin.getVersionHandler().update();
+                    }
+                }).build();
+    }
+}

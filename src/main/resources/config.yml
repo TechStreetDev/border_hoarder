@@ -1,0 +1,8 @@
+# Update handler configuration
+
+update:
+  # Automatically download updates when found
+  auto-update: true
+
+  # How often to check for updates (in minutes)
+  check-interval: 5
