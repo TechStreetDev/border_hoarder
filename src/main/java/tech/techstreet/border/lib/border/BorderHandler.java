@@ -90,14 +90,15 @@ public class BorderHandler {
                     if (user.getState() == UserState.PLAY) {
                         ProgressHandler.updateState(player.getUniqueId(), player.getLocation(), new UserStats(UserState.PLAY, player.getFoodLevel(), player.getSaturation(), player.getHealth()));
                     } else {
+                        UserStats stats = ProgressHandler.getLastStats().get(player.getUniqueId());
                         ProgressHandler.updateState(
                                 player.getUniqueId(),
                                 ProgressHandler.getLastLocations().get(player.getUniqueId()),
                                 new UserStats(
                                         UserState.LOBBY,
-                                        ProgressHandler.getLastStats().get(player.getUniqueId()).food(),
-                                        ProgressHandler.getLastStats().get(player.getUniqueId()).saturation(),
-                                        ProgressHandler.getLastStats().get(player.getUniqueId()).health()
+                                        stats == null ? 20 : stats.food(),
+                                        stats == null ? 20 : stats.saturation(),
+                                        stats == null ? 20 : stats.health()
                                 )
                         );
                     }
@@ -140,14 +141,15 @@ public class BorderHandler {
         }
 
         if (user.getState() == UserState.LOBBY) {
+            UserStats stats = ProgressHandler.getLastStats().get(player.getUniqueId());
             ProgressHandler.updateState(
                     player.getUniqueId(),
                     ProgressHandler.getLastLocations().get(player.getUniqueId()),
                     new UserStats(
                             UserState.LOBBY,
-                            ProgressHandler.getLastStats().get(player.getUniqueId()).food(),
-                            ProgressHandler.getLastStats().get(player.getUniqueId()).saturation(),
-                            ProgressHandler.getLastStats().get(player.getUniqueId()).health()
+                            stats == null ? 20 : stats.food(),
+                            stats == null ? 20 : stats.saturation(),
+                            stats == null ? 20 : stats.health()
                     )
             );
         }
