@@ -33,6 +33,10 @@ import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -46,10 +50,11 @@ public class VersionHandler {
     /**
      * Record to hold version information.
      *
-     * @param name        The version name.
-     * @param downloadUrl The URL to download the version.
+     * @param name              The version name.
+     * @param downloadUrl       The URL to download the version.
+     * @param compatibleVersion The Minecraft version this plugin version is compatible with.
      */
-    private record VersionInfo(String name, String downloadUrl) {
+    private record VersionInfo(String name, String downloadUrl, String compatibleVersion) {
     }
 
     /**
@@ -59,8 +64,8 @@ public class VersionHandler {
      */
     public VersionHandler(BorderHoarderPlugin instance) {
         this.instance = instance;
-        this.version = instance.getDescription().getVersion();
-        this.major = instance.getDescription().getVersion().split("\\.")[0];
+        this.version = instance.getPluginMeta().getVersion();
+        this.major = instance.getPluginMeta().getVersion().split("\\.")[0];
     }
 
     /**
@@ -117,7 +122,7 @@ public class VersionHandler {
 
             if (versionName.equals(version)) return null;
             if (versionName.startsWith(major + "."))
-                return new VersionInfo(versionName, versionObj.get("download_url").getAsString());
+                return new VersionInfo(versionName, versionObj.get("download_url").getAsString(), versionObj.get("compatibleVersion").getAsString());
         }
 
         return null;
@@ -132,8 +137,8 @@ public class VersionHandler {
     public File findRealPluginJar(JavaPlugin plugin) {
         File pluginsFolder = Bukkit.getPluginsFolder();
 
-        String pluginName = plugin.getDescription().getName();
-        String pluginVersion = plugin.getDescription().getVersion();
+        String pluginName = plugin.getPluginMeta().getName();
+        String pluginVersion = plugin.getPluginMeta().getVersion();
 
         File[] files = pluginsFolder.listFiles((dir, name) -> name.endsWith(".jar"));
 
@@ -175,7 +180,7 @@ public class VersionHandler {
                 File tempZip = new File(pluginsFolder, "BorderHoarder-update.zip");
 
                 // Download ZIP
-                try (InputStream in = new URL(latestVersion.downloadUrl).openStream();
+                try (InputStream in = new URI(latestVersion.downloadUrl).toURL().openStream();
                      FileOutputStream out = new FileOutputStream(tempZip)) {
 
                     byte[] buffer = new byte[8192];
@@ -192,15 +197,11 @@ public class VersionHandler {
                     ZipEntry entry;
 
                     while ((entry = zipIn.getNextEntry()) != null) {
-
-                        if (entry.getName().startsWith("plugins/")
-                                && entry.getName().endsWith(".jar")) {
-
+                        if (entry.getName().startsWith("plugins/") && entry.getName().endsWith(".jar")) {
                             String jarName = new File(entry.getName()).getName();
                             File newJar = new File(pluginsFolder, jarName);
 
                             try (FileOutputStream out = new FileOutputStream(newJar)) {
-
                                 byte[] buffer = new byte[8192];
                                 int bytesRead;
 
@@ -215,6 +216,37 @@ public class VersionHandler {
                     }
                 }
 
+                try {
+                    if (!Objects.equals(latestVersion.compatibleVersion(), BorderHoarderPlugin.getMinecraftVersion())) {
+                        Bukkit.getConsoleSender().sendMessage(Component.text("[" + BorderHoarderPlugin.getPluginName() + "] This version requires updating to '" + latestVersion.compatibleVersion() + "', attempting to automatically update.", Colours.GREEN));
+                        String command = System.getProperty("sun.java.command");
+                        String jarName = command.split(" ")[0];
+
+                        if (jarName == null || jarName.isEmpty() || jarName.isBlank()) {
+                            throw new IOException("Failed to determine launch jar name from system properties.");
+                        }
+
+                        String mcVersion = latestVersion.compatibleVersion();
+                        URL versionUrl = new URI("https://fill.papermc.io/v3/projects/paper/versions/" + mcVersion + "/builds/latest").toURL();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(versionUrl.openStream()));
+
+                        JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+                        int latestBuild = json.get("id").getAsInt();
+                        String downloadUrl = json.get("downloads").getAsJsonObject()
+                                .get("server:default").getAsJsonObject().get("url").getAsString();
+
+                        Bukkit.getConsoleSender().sendMessage(Component.text("[" + BorderHoarderPlugin.getPluginName() + "] Updating launch jar file, '" + jarName + "' to '" + mcVersion + "-" + latestBuild + "'.", Colours.GREEN));
+                        Path updatePath = Path.of(jarName);
+                        try (InputStream in = new URI(downloadUrl).toURL().openStream()) {
+                            Files.copy(in, updatePath, StandardCopyOption.REPLACE_EXISTING);
+                        }
+
+                        Bukkit.getConsoleSender().sendMessage(Component.text("[" + BorderHoarderPlugin.getPluginName() + "] Successfully updated launch jar file, '" + jarName + "' to '" + mcVersion + "-" + latestBuild + "'.", Colours.GREEN));
+                    }
+                } catch (Exception e) {
+                    Bukkit.getConsoleSender().sendMessage(Component.text("[" + BorderHoarderPlugin.getPluginName() + "] Failed to update launch jar, please update to version '" + latestVersion.compatibleVersion() + "' manually, error: " + e.getMessage(), Colours.RED));
+                }
+
                 tempZip.delete();
                 if (!extracted) {
                     Bukkit.getConsoleSender().sendMessage(Component.text("[" + BorderHoarderPlugin.getPluginName() + "] Update failed, aborting.", Colours.RED));
@@ -224,8 +256,8 @@ public class VersionHandler {
                     }
 
                     Bukkit.getConsoleSender().sendMessage(Component.text("[" + BorderHoarderPlugin.getPluginName() + "] Update downloaded successfully, restarting in 15 seconds!", Colours.GREEN));
-                    Bukkit.broadcast(Component.text("The plugin is updating, restarting in 15 seconds!"));
                     Bukkit.getScheduler().runTaskLater(BorderHoarderPlugin.getInstance(), Bukkit::restart, (20 * 15)); // Restart after 15 seconds
+                    Bukkit.broadcast(Component.text("The plugin is updating, restarting in 15 seconds!"));
                 }
             } catch (Exception e) {
                 Bukkit.getConsoleSender().sendMessage(Component.text("[" + BorderHoarderPlugin.getPluginName() + "] Failed to update plugin.", Colours.RED));

@@ -60,6 +60,15 @@ public final class BorderHoarderPlugin extends JavaPlugin {
     }
 
     /**
+     * The version of Minecraft this plugin runs.
+     *
+     * @return the Minecraft version this plugin runs.
+     */
+    public static String getMinecraftVersion() {
+        return MINECRAFT_VERSION;
+    }
+
+    /**
      * Gets the plugin name.
      * @return the plugin name.
      */
