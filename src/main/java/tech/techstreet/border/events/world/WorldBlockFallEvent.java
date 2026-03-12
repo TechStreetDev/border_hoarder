@@ -17,6 +17,7 @@
 package tech.techstreet.border.events.world;
 
 import org.bukkit.Material;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
@@ -29,8 +30,10 @@ public class WorldBlockFallEvent implements Listener {
      */
     @EventHandler
     public void onEvent(EntityChangeBlockEvent event) {
-        if (event.getBlock().getType() == Material.SUSPICIOUS_GRAVEL || event.getBlock().getType() == Material.SUSPICIOUS_SAND) {
-            event.setCancelled(true);
+        if (event.getEntity() instanceof FallingBlock) {
+            if (event.getBlock().getType() == Material.SUSPICIOUS_GRAVEL || event.getBlock().getType() == Material.SUSPICIOUS_SAND) {
+                event.setCancelled(true);
+            }
         }
     }
 }
