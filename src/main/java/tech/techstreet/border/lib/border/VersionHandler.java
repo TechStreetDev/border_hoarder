@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import tech.techstreet.border.BorderHoarderPlugin;
@@ -41,6 +42,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 public class VersionHandler {
     private final BorderHoarderPlugin instance;
@@ -164,6 +166,65 @@ public class VersionHandler {
     }
 
     /**
+     * Zips the world folders into a single ZIP file with the given name.
+     */
+    private void zipWorlds(String zipName) throws IOException {
+        File serverFolder = new File(".");
+        File backupsDir = new File(serverFolder, ".backups");
+
+        // Create backups directory if it doesn't exist
+        if (!backupsDir.exists()) {
+            backupsDir.mkdirs();
+        }
+
+        File zipFile = new File(backupsDir, zipName + ".zip");
+        String[] worlds = {"world", "world_nether", "world_spawn", "world_the_end"};
+
+        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile))) {
+            for (String worldName : worlds) {
+                File worldFolder = new File(serverFolder, worldName);
+
+                if (!worldFolder.exists()) continue;
+                zipFolder(worldFolder, worldFolder.getName(), zos);
+            }
+        }
+    }
+
+    /**
+     * Recursively zips a folder and its contents into the given ZipOutputStream.
+     *
+     * @param folder       the folder to zip
+     * @param parentFolder the parent folder path to maintain the directory structure in the ZIP file
+     * @param zos          the ZipOutputStream to write the zipped data to
+     * @throws IOException if an I/O error occurs during zipping
+     */
+    private void zipFolder(File folder, String parentFolder, ZipOutputStream zos) throws IOException {
+        File[] files = folder.listFiles();
+        if (files == null) return;
+
+        for (File file : files) {
+            if (file.isDirectory()) {
+                zipFolder(file, parentFolder + "/" + file.getName(), zos);
+                continue;
+            }
+
+            try (FileInputStream fis = new FileInputStream(file)) {
+                ZipEntry zipEntry = new ZipEntry(parentFolder + "/" + file.getName());
+                zos.putNextEntry(zipEntry);
+
+                byte[] buffer = new byte[4096];
+                int length;
+
+                while ((length = fis.read(buffer)) >= 0) {
+                    zos.write(buffer, 0, length);
+                }
+
+                zos.closeEntry();
+            }
+        }
+    }
+
+    /**
      * Downloads the latest version and schedules a server restart.
      */
     public void update() {
@@ -175,6 +236,10 @@ public class VersionHandler {
                 if (latestVersion == null) {
                     throw new IOException("No new version available or failed to fetch version information.");
                 }
+
+                Bukkit.getScheduler().runTask(instance, () -> {
+                    Bukkit.getWorlds().forEach(World::save);
+                });
 
                 File pluginsFolder = Bukkit.getPluginsFolder();
                 File tempZip = new File(pluginsFolder, "BorderHoarder-update.zip");
@@ -216,6 +281,7 @@ public class VersionHandler {
                     }
                 }
 
+                // Updating PaperMC version if needed
                 try {
                     if (!Objects.equals(latestVersion.compatibleVersion(), BorderHoarderPlugin.getMinecraftVersion())) {
                         Bukkit.getConsoleSender().sendMessage(Component.text("[" + BorderHoarderPlugin.getPluginName() + "] This version requires updating to '" + latestVersion.compatibleVersion() + "', attempting to automatically update.", Colours.GREEN));
@@ -236,6 +302,8 @@ public class VersionHandler {
                                 .get("server:default").getAsJsonObject().get("url").getAsString();
 
                         Bukkit.getConsoleSender().sendMessage(Component.text("[" + BorderHoarderPlugin.getPluginName() + "] Updating launch jar file, '" + jarName + "' to '" + mcVersion + "-" + latestBuild + "'.", Colours.GREEN));
+                        zipWorlds("backup-" + BorderHoarderPlugin.getMinecraftVersion());
+
                         Path updatePath = Path.of(jarName);
                         try (InputStream in = new URI(downloadUrl).toURL().openStream()) {
                             Files.copy(in, updatePath, StandardCopyOption.REPLACE_EXISTING);
@@ -247,6 +315,7 @@ public class VersionHandler {
                     Bukkit.getConsoleSender().sendMessage(Component.text("[" + BorderHoarderPlugin.getPluginName() + "] Failed to update launch jar, please update to version '" + latestVersion.compatibleVersion() + "' manually, error: " + e.getMessage(), Colours.RED));
                 }
 
+                // Delete old ZIP file
                 tempZip.delete();
                 if (!extracted) {
                     Bukkit.getConsoleSender().sendMessage(Component.text("[" + BorderHoarderPlugin.getPluginName() + "] Update failed, aborting.", Colours.RED));
