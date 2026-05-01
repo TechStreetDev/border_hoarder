@@ -27,6 +27,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import tech.techstreet.border.BorderHoarderPlugin;
+import tech.techstreet.border.command.impl.DebugCommand;
 import tech.techstreet.border.command.impl.LobbyCommand;
 import tech.techstreet.border.command.impl.SearchCommand;
 import tech.techstreet.border.command.impl.UpdateCommand;
@@ -106,5 +107,9 @@ public class CommandHandler {
                 new SearchCommand(),
                 new UpdateCommand()
         );
+
+        if (BorderHoarderPlugin.getInstance().getConfig().getBoolean("debug", false)) {
+            register(new DebugCommand());
+        }
     }
 }

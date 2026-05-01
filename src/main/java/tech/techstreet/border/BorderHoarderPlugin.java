@@ -29,7 +29,7 @@ public final class BorderHoarderPlugin extends JavaPlugin {
     private static BorderHoarderPlugin instance;
     private static BorderHandler borderHandler;
     private static VersionHandler versionHandler;
-    private static final String MINECRAFT_VERSION = "1.21.11";
+    private static final String MINECRAFT_VERSION = "26.1.2";
 
     /**
      * Called when the plugin is enabled.

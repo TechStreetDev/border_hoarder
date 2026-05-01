@@ -37,7 +37,8 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 public class ProgressHandler {
-    private static final File file = new File("world/data/border.dat");
+    private static final File oldFile = new File("world/data/border.dat");
+    private static final File file = new File("world/data/border/data.dat");
     private static final HashMap<UUID, Location> lastLocations = new HashMap<>();
     private static final HashMap<UUID, UserStats> lastStats = new HashMap<>();
 
@@ -129,8 +130,14 @@ public class ProgressHandler {
      * @return The list of completed BoarderItems.
      * @throws Exception If an error occurs during loading.
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static List<BoarderItem> loadWorld() throws Exception {
         List<BoarderItem> loadedItems = new ArrayList<>();
+        if (oldFile.exists()) {
+            if (!file.getParentFile().exists()) file.getParentFile().mkdirs();
+            Files.move(oldFile.toPath(), file.toPath());
+        }
+
         if (!file.exists()) return loadedItems;
 
         JsonObject jsonObject = JsonParser.parseString(base64AndGunzip(Files.readString(file.toPath()))).getAsJsonObject();

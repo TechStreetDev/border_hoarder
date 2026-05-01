@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'tech.techstreet.border'
-version = '2.0.3'
+version = '2.0.5'
 build.dependsOn shadowJar
 
 repositories {
@@ -21,7 +21,8 @@ dependencies {
     implementation("cloud.commandframework:cloud-minecraft-extras:1.5.0")       // Cloud Extras
     implementation("org.bstats:bstats-bukkit:3.1.0")                            // bStats Metrics
 
-    compileOnly("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:26.1.2.build.53-stable")
+    // https://artifactory.papermc.io/ui/native/universe/io/papermc/paper/paper-api/
 }
 
 tasks {
@@ -33,7 +34,7 @@ tasks {
     }
 }
 
-def targetJavaVersion = 21
+def targetJavaVersion = 25
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
     sourceCompatibility = javaVersion

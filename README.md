@@ -14,7 +14,7 @@ You can set up a Border Hoarder server using the following steps:
 
 1. Download the files from the [download page](https://resourcelab.io/resource/1b414ea9).
 2. Extract the downloaded ZIP file to a folder on your server.
-3. Make sure your server is running Paper, with Minecraft version 1.21.11.
+3. Make sure your server is running Paper, with Minecraft version 26.1.2.
 4. Optionally install VoiceChat plugin for in-game voice communication.
 5. Start your server and enjoy the Border Hoarder experience!
 

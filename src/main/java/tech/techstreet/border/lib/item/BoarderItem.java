@@ -19,7 +19,7 @@ package tech.techstreet.border.lib.item;
 public enum BoarderItem {
 
     /**
-     * List of all Minecraft items as of version 1.21.11
+     * List of all Minecraft items as of version 26.1.1
      */
 
     ACACIA_BOAT,
@@ -536,6 +536,7 @@ public enum BoarderItem {
     GOLDEN_BOOTS,
     GOLDEN_CARROT,
     GOLDEN_CHESTPLATE,
+    GOLDEN_DANDELION,
     GOLDEN_HELMET,
     GOLDEN_HOE,
     GOLDEN_HORSE_ARMOR,

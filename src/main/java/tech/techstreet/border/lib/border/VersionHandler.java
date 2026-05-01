@@ -178,14 +178,14 @@ public class VersionHandler {
         }
 
         File zipFile = new File(backupsDir, zipName + ".zip");
-        String[] worlds = {"world", "world_nether", "world_spawn", "world_the_end"};
+        String[] backupFolders = {"world"};
 
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile))) {
-            for (String worldName : worlds) {
-                File worldFolder = new File(serverFolder, worldName);
+            for (String name : backupFolders) {
+                File folder = new File(serverFolder, name);
 
-                if (!worldFolder.exists()) continue;
-                zipFolder(worldFolder, worldFolder.getName(), zos);
+                if (!folder.exists()) continue;
+                zipFolder(folder, folder.getName(), zos);
             }
         }
     }

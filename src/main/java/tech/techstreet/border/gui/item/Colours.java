@@ -23,4 +23,5 @@ public class Colours {
     public static final CustomColour GREEN = new CustomColour(0x22C55E);
     public static final CustomColour GREEN_LIGHT_2 = new CustomColour(0x4ADE80);
     public static final CustomColour GRAY = new CustomColour(0x737373);
+    public static final CustomColour WHITE = new CustomColour(0xffffff);
 }

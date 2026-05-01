@@ -36,7 +36,7 @@ public class WorldPortalEvent implements Listener {
     public void onEvent(PlayerPortalEvent event) {
         User user = UserManager.of(event.getPlayer());
 
-        if (event.getFrom().getWorld().getName().equals("world_spawn")) {
+        if (event.getFrom().getWorld().getName().equals("spawn")) {
             event.setCanCreatePortal(false);
             event.setCancelled(true);
             user.setState(UserState.PLAY);
@@ -62,7 +62,7 @@ public class WorldPortalEvent implements Listener {
      */
     @EventHandler
     public void onEvent(EntityPortalEvent event) {
-        if (event.getFrom().getWorld().getName().equals("world_spawn")) {
+        if (event.getFrom().getWorld().getName().equals("spawn")) {
             event.setCanCreatePortal(false);
             event.setCancelled(true);
         }

@@ -24,6 +24,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -39,7 +40,6 @@ public class PlayerClickListener implements Listener {
 
     /**
      * Handles player interactions with the world.
-     *
      * @param event The PlayerInteractEvent to handle
      */
     @EventHandler
@@ -60,8 +60,22 @@ public class PlayerClickListener implements Listener {
     }
 
     /**
-     * Handles inventory click events for menu interactions.
+     * Handles player item drop events to prevent dropping items in the lobby.
      *
+     * @param event The PlayerDropItemEvent to handle
+     */
+    @EventHandler
+    public void onEvent(PlayerDropItemEvent event) {
+        final Player player = event.getPlayer();
+        final User user = UserManager.of(player);
+
+        if (user.getState() == UserState.LOBBY) {
+            event.setCancelled(true);
+        }
+    }
+
+    /**
+     * Handles inventory click events for menu interactions.
      * @param event The InventoryClickEvent to handle
      */
     @EventHandler
@@ -98,7 +112,6 @@ public class PlayerClickListener implements Listener {
 
     /**
      * Handles inventory close events for menu interactions.
-     *
      * @param event The InventoryCloseEvent to handle
      */
     @EventHandler

@@ -89,7 +89,7 @@ public class User {
         }
 
         if (state == UserState.LOBBY) {
-            player.teleport(new Location(Bukkit.getWorld("world_spawn"), 0.5, 90, 0.5, 180, 0));
+            player.teleport(new Location(Bukkit.getWorld("spawn"), 0.5, 90, 0.5, 180, 0));
             player.setHealth(20);
             player.setFoodLevel(20);
             player.setSaturation(20);
