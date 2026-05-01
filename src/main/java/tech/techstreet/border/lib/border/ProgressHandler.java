@@ -118,6 +118,7 @@ public class ProgressHandler {
             String jsonString = new Gson().toJson(jsonObject);
             String compressedData = gzipAndBase64(jsonString);
 
+            if (!file.getParentFile().exists()) file.getParentFile().mkdirs();
             Files.writeString(Path.of(file.getPath()), compressedData);
         } catch (Exception e) {
             throw new RuntimeException(e);
