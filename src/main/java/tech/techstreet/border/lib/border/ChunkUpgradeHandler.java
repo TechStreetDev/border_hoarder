@@ -345,8 +345,16 @@ public class ChunkUpgradeHandler {
         // other chunks in the same 32x32 region) is invisible to it, and it will keep
         // returning the old, un-regenerated chunk. Clearing every entry for a region
         // file up front, before any of its chunks are loaded, avoids that entirely.
+        //
+        // Entities have been stored separately from block/biome data since 1.17
+        // (world/dimensions/.../entities/, alongside region/), so clearing only the
+        // region/ files would regenerate fresh terrain but leave every old entity
+        // (mobs, dropped items, old minecarts, etc.) from before the upgrade sitting
+        // in it. The entities/ files use the exact same Anvil header format, so the
+        // same clearing routine is reused against that directory too.
         try {
-            clearChunkEntries(region.world(), chunks);
+            clearChunkEntries(getRegionDirectory(region.world()), chunks);
+            clearChunkEntries(getEntitiesDirectory(region.world()), chunks);
         } catch (IOException e) {
             log("Failed to clear chunk data ahead of regeneration: " + e.getMessage());
         }
@@ -378,12 +386,13 @@ public class ChunkUpgradeHandler {
     }
 
     /**
-     * Regenerates a single chunk that has already had its region file entry cleared
-     * by {@link #clearChunkEntries(World, List)}. {@code World#regenerateChunk} is no
-     * longer supported by the server since noise-based world generation replaced the
-     * old regeneration path, so instead the chunk is unloaded and reloaded, which -
-     * since the server now sees it as never generated - triggers a full fresh
-     * generation pass with the current world generator.
+     * Regenerates a single chunk that has already had its region and entities file
+     * entries cleared by {@link #clearChunkEntries(File, List)}.
+     * {@code World#regenerateChunk} is no longer supported by the server since
+     * noise-based world generation replaced the old regeneration path, so instead the
+     * chunk is unloaded and reloaded, which - since the server now sees it as never
+     * generated - triggers a full fresh generation pass with the current world
+     * generator and leaves it with no leftover entities from before the upgrade.
      */
     private void forceRegenerateChunk(World world, int chunkX, int chunkZ) {
         if (world.isChunkLoaded(chunkX, chunkZ)) {
@@ -395,13 +404,14 @@ public class ChunkUpgradeHandler {
     }
 
     /**
-     * Zeroes out the location and timestamp table entries for every given chunk, so
-     * the server no longer sees them as generated. Entries are grouped by region file
-     * and each file is opened once, so every chunk in a region file is cleared before
-     * any of them can possibly be loaded (see the caching caveat above).
+     * Zeroes out the location and timestamp table entries for every given chunk in
+     * the given Anvil-format storage directory (either a world's {@code region/} or
+     * {@code entities/} folder), so the server no longer sees them as generated.
+     * Entries are grouped by region file and each file is opened once, so every
+     * chunk in a region file is cleared before any of them can possibly be loaded
+     * (see the caching caveat above).
      */
-    private void clearChunkEntries(World world, List<int[]> chunks) throws IOException {
-        File regionDir = getRegionDirectory(world);
+    private void clearChunkEntries(File regionDir, List<int[]> chunks) throws IOException {
         if (!regionDir.isDirectory()) return;
 
         Map<Long, List<int[]>> byRegionFile = new HashMap<>();
@@ -437,16 +447,21 @@ public class ChunkUpgradeHandler {
     }
 
     /**
-     * Zips the region (.mca) files that overlap the given chunk region into the
-     * backups folder, so the original terrain can be restored if needed.
+     * Zips the region and entities (.mca) files that overlap the given chunk region
+     * into the backups folder, so the original terrain and entities can be restored
+     * if needed.
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private void backupRegion(ChunkRegion region) throws IOException {
-        File regionDir = getRegionDirectory(region.world());
-        if (!regionDir.isDirectory()) return;
+        Map<String, File> byFolderName = new HashMap<>();
+        for (File dir : List.of(getRegionDirectory(region.world()), getEntitiesDirectory(region.world()))) {
+            if (!dir.isDirectory()) continue;
+            for (File file : getFiles(region, dir)) {
+                byFolderName.put(dir.getName() + "/" + file.getName(), file);
+            }
+        }
 
-        List<File> affectedFiles = getFiles(region, regionDir);
-        if (affectedFiles.isEmpty()) return;
+        if (byFolderName.isEmpty()) return;
 
         File backupsDir = new File(".backups");
         if (!backupsDir.exists()) backupsDir.mkdirs();
@@ -455,9 +470,9 @@ public class ChunkUpgradeHandler {
         File zipFile = new File(backupsDir, zipName);
 
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile))) {
-            for (File file : affectedFiles) {
-                try (FileInputStream fis = new FileInputStream(file)) {
-                    zos.putNextEntry(new ZipEntry(file.getName()));
+            for (Map.Entry<String, File> entry : byFolderName.entrySet()) {
+                try (FileInputStream fis = new FileInputStream(entry.getValue())) {
+                    zos.putNextEntry(new ZipEntry(entry.getKey()));
 
                     byte[] buffer = new byte[8192];
                     int length;
@@ -491,10 +506,15 @@ public class ChunkUpgradeHandler {
      * Resolves the region folder for a given world.
      */
     private File getRegionDirectory(World world) {
-        // Paper 26.1+ stores every dimension under world/dimensions/minecraft/<dimension>/,
-        // each with its own region/ folder, and World#getWorldFolder() already resolves to
-        // that per-dimension path - there is no more world_nether/DIM-1 style layout to guess.
         return new File(world.getWorldFolder(), "region");
+    }
+
+    /**
+     * Resolves the entities folder for a given world (block/biome data and entities
+     * have been stored separately, in sibling Anvil-format directories, since 1.17).
+     */
+    private File getEntitiesDirectory(World world) {
+        return new File(world.getWorldFolder(), "entities");
     }
 
     private void log(String message) {
