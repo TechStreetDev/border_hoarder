@@ -6,3 +6,8 @@ update:
 
   # How often to check for updates (in minutes)
   check-interval: 5
+
+# Chunk upgrade handler configuration
+chunk-upgrade:
+  # How many chunks to regenerate per tick while upgrading
+  chunks-per-tick: 10

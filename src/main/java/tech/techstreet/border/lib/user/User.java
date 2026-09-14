@@ -77,7 +77,9 @@ public class User {
         if (state == UserState.PLAY) {
             Location location = ProgressHandler.getLastLocations().get(player.getUniqueId());
             UserStats stats = ProgressHandler.getLastStats().getOrDefault(player.getUniqueId(), new UserStats(UserState.PLAY, 20, 20, 20));
-            if (location == null) location = new Location(Bukkit.getWorld("world"), 576.50, 67, -517.50);
+            if (location == null || location.getWorld().getName().equals("spawn")) {
+                location = new Location(Bukkit.getWorld("world"), 576.50, 67, -517.50);
+            }
 
             player.teleport(location);
             player.setHealth(stats.health());
@@ -202,7 +204,6 @@ public class User {
 
     /**
      * Get the unique ID of the user.
-     *
      * @return the unique UUID.
      */
     public UUID getUniqueId() {

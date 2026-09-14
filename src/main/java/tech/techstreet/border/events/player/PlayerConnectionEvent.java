@@ -52,6 +52,14 @@ public class PlayerConnectionEvent implements Listener {
 
         if (BorderHoarderPlugin.getBorderHandler().getSpawnWorld() == null) {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Component.text("Server world is not setup correctly."));
+            return;
+        }
+
+        if (BorderHoarderPlugin.getChunkUpgradeHandler() != null && BorderHoarderPlugin.getChunkUpgradeHandler().isRunning()) {
+            int upgraded = BorderHoarderPlugin.getChunkUpgradeHandler().getUpgraded();
+            int total = BorderHoarderPlugin.getChunkUpgradeHandler().getTotal();
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Component.text(
+                    "The server is upgrading terrain (" + upgraded + "/" + total + " chunks), please try again shortly."));
         }
     }
 

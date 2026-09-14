@@ -28,7 +28,6 @@ public class WorldEntityDeathEvent implements Listener {
 
     /**
      * Handles the EntityDeathEvent.
-     *
      * @param event The EntityDeathEvent to handle.
      */
     @EventHandler

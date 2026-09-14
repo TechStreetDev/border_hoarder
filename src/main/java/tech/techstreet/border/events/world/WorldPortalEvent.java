@@ -57,7 +57,6 @@ public class WorldPortalEvent implements Listener {
 
     /**
      * Prevents spawn portal from generating within the nether
-     *
      * @param event The EntityPortalEvent to handle
      */
     @EventHandler

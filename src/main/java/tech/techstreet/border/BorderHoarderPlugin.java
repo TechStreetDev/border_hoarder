@@ -23,13 +23,15 @@ import tech.techstreet.border.command.CommandHandler;
 import tech.techstreet.border.events.EventHandler;
 import tech.techstreet.border.gui.item.Colours;
 import tech.techstreet.border.lib.border.BorderHandler;
+import tech.techstreet.border.lib.border.ChunkUpgradeHandler;
 import tech.techstreet.border.lib.border.VersionHandler;
 
 public final class BorderHoarderPlugin extends JavaPlugin {
     private static BorderHoarderPlugin instance;
     private static BorderHandler borderHandler;
     private static VersionHandler versionHandler;
-    private static final String MINECRAFT_VERSION = "26.1.2";
+    private static ChunkUpgradeHandler chunkUpgradeHandler;
+    private static final String MINECRAFT_VERSION = "26.2";
 
     /**
      * Called when the plugin is enabled.
@@ -41,6 +43,8 @@ public final class BorderHoarderPlugin extends JavaPlugin {
         if (Bukkit.getServer().getMinecraftVersion().equals(MINECRAFT_VERSION)) {
             borderHandler = new BorderHandler(instance);
             borderHandler.load();
+
+            chunkUpgradeHandler = new ChunkUpgradeHandler(instance);
         } else {
             Bukkit.getConsoleSender().sendMessage(Component.text("[" + getPluginName() + "] Unsupported Minecraft version detected.", Colours.RED));
             Bukkit.getConsoleSender().sendMessage(Component.text("[" + getPluginName() + "] This plugin supports Minecraft " + MINECRAFT_VERSION + " only, you are running " + Bukkit.getServer().getMinecraftVersion(), Colours.RED));
@@ -49,7 +53,7 @@ public final class BorderHoarderPlugin extends JavaPlugin {
         saveDefaultConfig();
         reloadConfig();
 
-        Bukkit.motd(Component.text("Border Hoarder v" + this.getDescription().getVersion()));
+        Bukkit.motd(Component.text("Border Hoarder v" + this.getPluginMeta().getVersion()));
         CommandHandler commandHandler = new CommandHandler(instance);
         EventHandler eventHandler = new EventHandler(instance);
         versionHandler = new VersionHandler(instance);
@@ -57,11 +61,14 @@ public final class BorderHoarderPlugin extends JavaPlugin {
         commandHandler.load();
         versionHandler.load();
         eventHandler.load();
+
+        if (chunkUpgradeHandler != null) {
+            chunkUpgradeHandler.checkForPendingUpgrades();
+        }
     }
 
     /**
      * The version of Minecraft this plugin runs.
-     *
      * @return the Minecraft version this plugin runs.
      */
     public static String getMinecraftVersion() {
@@ -94,10 +101,18 @@ public final class BorderHoarderPlugin extends JavaPlugin {
 
     /**
      * Gets the VersionHandler instance.
-     *
      * @return the VersionHandler instance.
      */
     public static VersionHandler getVersionHandler() {
         return versionHandler;
+    }
+
+    /**
+     * Gets the ChunkUpgradeHandler instance.
+     *
+     * @return the ChunkUpgradeHandler instance.
+     */
+    public static ChunkUpgradeHandler getChunkUpgradeHandler() {
+        return chunkUpgradeHandler;
     }
 }
