@@ -22,9 +22,12 @@ import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Container;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.minecart.StorageMinecart;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -36,6 +39,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -88,11 +92,69 @@ public class ChunkUpgradeHandler {
                         }
                     }
                 }
+            }),
+
+            new UpgradeDefinition("wilderness-bound", List.of(
+                    new RegionDefinition("world", -44, -10, -60, -22)
+            ), regions -> {
+            }),
+
+            new UpgradeDefinition("abandoned-camp-1", List.of(
+                    new RegionDefinition("world", 26, 24, 25, 23)
+            ), regions -> {
+            }),
+
+            new UpgradeDefinition("abandoned-camp-2", List.of(
+                    new RegionDefinition("world", 46, -13, 47, -12)
+            ), regions -> {
+                List<Material> maps = List.of(
+                        Material.BURIED_ANCIENT_CITY_MAP,
+                        Material.BURIED_MINESHAFT_MAP,
+                        Material.DESERT_PYRAMID_MAP,
+                        Material.WARM_OCEAN_RUINS_MAP
+                );
+
+                for (ChunkRegion region : regions) {
+                    World world = region.world();
+
+                    for (int x = region.minChunkX(); x <= region.maxChunkX(); x++) {
+                        for (int z = region.minChunkZ(); z <= region.maxChunkZ(); z++) {
+                            boolean wasLoaded = world.isChunkLoaded(x, z);
+                            Chunk chunk = world.getChunkAt(x, z);
+
+                            for (BlockState state : chunk.getTileEntities()) {
+                                if (state.getType() == Material.OXIDIZED_COPPER_CHEST && state instanceof Container chest) {
+                                    Inventory inventory = chest.getInventory();
+
+                                    for (Material map : maps) {
+                                        if (Arrays.stream(inventory.getContents()).anyMatch(item -> item != null && item.getType() == map)) {
+                                            continue;
+                                        }
+
+                                        List<Integer> emptySlots = new ArrayList<>();
+                                        for (int slot = 0; slot < inventory.getSize(); slot++) {
+                                            if (inventory.getItem(slot) == null) {
+                                                emptySlots.add(slot);
+                                            }
+                                        }
+
+                                        if (emptySlots.isEmpty()) continue;
+                                        int slot = emptySlots.get(ThreadLocalRandom.current().nextInt(emptySlots.size()));
+                                        inventory.setItem(slot, new ItemStack(map));
+                                    }
+                                }
+                            }
+
+                            if (!wasLoaded) {
+                                world.unloadChunk(x, z, true);
+                            }
+                        }
+                    }
+                }
             })
     );
 
     private static final File completedFile = new File("world/data/border/completed-upgrades.dat");
-
     private final BorderHoarderPlugin instance;
     private volatile boolean running = false;
     private volatile int upgraded = 0;
