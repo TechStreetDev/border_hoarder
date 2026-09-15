@@ -2,9 +2,8 @@
  * Copyright (C) 2026 TechStreetDev
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Affero General Public License version 3
+ * as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -19,23 +18,24 @@ package tech.techstreet.border.events;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
-import tech.techstreet.border.BorderHoardersPlugin;
+import tech.techstreet.border.BorderHoarderPlugin;
 import tech.techstreet.border.events.player.PlayerClickListener;
 import tech.techstreet.border.events.player.PlayerConnectionEvent;
 import tech.techstreet.border.events.player.PlayerDamageEvent;
 import tech.techstreet.border.events.player.PlayerHandleItemEvent;
 import tech.techstreet.border.events.world.WorldBlockFallEvent;
+import tech.techstreet.border.events.world.WorldEntityDeathEvent;
 import tech.techstreet.border.events.world.WorldPortalEvent;
 
 public class EventHandler {
-    private final BorderHoardersPlugin instance;
+    private final BorderHoarderPlugin instance;
 
     /**
      * Constructor for EventHandler.
      *
      * @param instance The main plugin instance.
      */
-    public EventHandler(BorderHoardersPlugin instance) {
+    public EventHandler(BorderHoarderPlugin instance) {
         this.instance = instance;
     }
 
@@ -70,6 +70,7 @@ public class EventHandler {
                 new PlayerDamageEvent(),
 
                 new WorldBlockFallEvent(),
+                new WorldEntityDeathEvent(),
                 new WorldPortalEvent()
         );
     }

@@ -17,23 +17,24 @@
 package tech.techstreet.border.events.world;
 
 import org.bukkit.Material;
-import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.inventory.ItemStack;
 
-public class WorldBlockFallEvent implements Listener {
+public class WorldEntityDeathEvent implements Listener {
 
     /**
-     * Prevents suspicious gravel and sand from falling.
-     * This prevents players from "soft-locking" themselves.
+     * Handles the EntityDeathEvent.
+     * @param event The EntityDeathEvent to handle.
      */
     @EventHandler
-    public void onEvent(EntityChangeBlockEvent event) {
-        if (event.getEntity() instanceof FallingBlock) {
-            if (event.getBlock().getType() == Material.SUSPICIOUS_GRAVEL || event.getBlock().getType() == Material.SUSPICIOUS_SAND) {
-                event.setCancelled(true);
-            }
+    public void onEvent(EntityDeathEvent event) {
+        Entity entity = event.getEntity();
+        if (entity.getType() == EntityType.ELDER_GUARDIAN) {
+            event.getDrops().add(new ItemStack(Material.TIDE_ARMOR_TRIM_SMITHING_TEMPLATE));
         }
     }
 }

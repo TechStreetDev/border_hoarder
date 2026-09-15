@@ -2,9 +2,8 @@
  * Copyright (C) 2026 TechStreetDev
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Affero General Public License version 3
+ * as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -19,7 +18,12 @@ package tech.techstreet.border.lib.border;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextDecoration;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.*;
+import org.bukkit.block.Sign;
+import org.bukkit.block.sign.Side;
+import org.bukkit.block.sign.SignSide;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
@@ -27,14 +31,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.*;
-import tech.techstreet.border.BorderHoardersPlugin;
+import tech.techstreet.border.BorderHoarderPlugin;
 import tech.techstreet.border.gui.item.Colours;
 import tech.techstreet.border.lib.border.tests.BorderItemTest;
 import tech.techstreet.border.lib.item.BoarderItem;
 import tech.techstreet.border.lib.user.User;
 import tech.techstreet.border.lib.user.UserManager;
 import tech.techstreet.border.lib.user.UserState;
+import tech.techstreet.border.lib.user.UserStats;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -44,20 +50,37 @@ public class BorderHandler {
     private final HashMap<Float, Entity> textDisplays = new HashMap<>();
     private static final ConsoleCommandSender LOGGER = Bukkit.getConsoleSender();
     private static NamespacedKey counterKey;
-    private final BorderHoardersPlugin instance;
+    private final BorderHoarderPlugin instance;
     private Scoreboard scoreboard;
     private World spawnWorld;
 
-    public BorderHandler(BorderHoardersPlugin instance) {
+    public BorderHandler(BorderHoarderPlugin instance) {
+        new Metrics(BorderHoarderPlugin.getInstance(), 29626);
         this.instance = instance;
     }
 
     /**
      * Loads the border handler, initializes the spawn world, and sets up scheduled tasks.
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void load() {
         try {
-            spawnWorld = new WorldCreator("world_spawn").createWorld();
+            // Migrate the old spawn world to new method if it exists, otherwise create a new one.
+            File oldFile = new File("world/dimensions/minecraft/world_spawn");
+            File oldFile2 = new File("world_spawn");
+            File newFile = new File("world/dimensions/minecraft/spawn");
+            if (oldFile.exists()) {
+                newFile.delete();
+                oldFile.renameTo(newFile);
+            }
+
+            if (oldFile2.exists()) {
+                newFile.delete();
+                oldFile2.renameTo(newFile);
+            }
+
+            // Load the spawn world, if it fails log an error and disable the plugin.
+            spawnWorld = new WorldCreator("spawn").createWorld();
             if (spawnWorld != null) {
                 spawnWorld.setChunkForceLoaded(0, -1, true);
                 for (Entity entity : spawnWorld.getEntities()) {
@@ -67,28 +90,38 @@ public class BorderHandler {
                 spawnWorld.setDifficulty(Difficulty.PEACEFUL);
             }
 
-            counterKey = new NamespacedKey(BorderHoardersPlugin.getInstance(), "counter");
+            counterKey = new NamespacedKey(BorderHoarderPlugin.getInstance(), "counter");
             completedItems = ProgressHandler.loadWorld();
             instance.getServer().getScheduler().scheduleSyncRepeatingTask(instance, () -> {
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     for (ItemStack item : player.getInventory().getContents()) {
                         if (item != null) {
-                            BorderHoardersPlugin.getBorderHandler().addCompletedItem(player, item.getType());
+                            BorderHoarderPlugin.getBorderHandler().addCompletedItem(player, item.getType());
                         }
                     }
                 }
             }, 40, 40);
 
-            instance.getServer().getScheduler().runTask(instance, () -> BorderHoardersPlugin.getBorderHandler().syncBoarder());
+            instance.getServer().getScheduler().runTask(instance, () -> BorderHoarderPlugin.getBorderHandler().syncBoarder());
             instance.getServer().getScheduler().scheduleSyncRepeatingTask(instance, () -> {
                 // Write all auto saved player locations to the map.
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     User user = UserManager.of(player);
 
                     if (user.getState() == UserState.PLAY) {
-                        ProgressHandler.updateState(player.getUniqueId(), player.getLocation(), UserState.PLAY);
+                        ProgressHandler.updateState(player.getUniqueId(), player.getLocation(), new UserStats(UserState.PLAY, player.getFoodLevel(), player.getSaturation(), player.getHealth()));
                     } else {
-                        ProgressHandler.updateState(player.getUniqueId(), ProgressHandler.getLastLocations().get(player.getUniqueId()), UserState.LOBBY);
+                        UserStats stats = ProgressHandler.getLastStats().get(player.getUniqueId());
+                        ProgressHandler.updateState(
+                                player.getUniqueId(),
+                                ProgressHandler.getLastLocations().get(player.getUniqueId()),
+                                new UserStats(
+                                        UserState.LOBBY,
+                                        stats == null ? 20 : stats.food(),
+                                        stats == null ? 20 : stats.saturation(),
+                                        stats == null ? 20 : stats.health()
+                                )
+                        );
                     }
                 }
 
@@ -110,7 +143,7 @@ public class BorderHandler {
             BorderItemTest.run();
             Bukkit.getScheduler().runTaskLater(instance, this::syncBoarder, 20);
         } catch (Exception e) {
-            LOGGER.sendMessage(Component.text("[" + BorderHoardersPlugin.getPluginName() + "] Failed to retrieve saved items file.", Colours.RED));
+            LOGGER.sendMessage(Component.text("[" + BorderHoarderPlugin.getPluginName() + "] Failed to retrieve saved items file.", Colours.RED));
             completedItems = null;
         }
 
@@ -125,11 +158,21 @@ public class BorderHandler {
         User user = UserManager.of(player);
 
         if (user.getState() == UserState.PLAY) {
-            ProgressHandler.updateState(player.getUniqueId(), player.getLocation(), UserState.PLAY);
+            ProgressHandler.updateState(player.getUniqueId(), player.getLocation(), new UserStats(UserState.PLAY, player.getFoodLevel(), player.getSaturation(), player.getHealth()));
         }
 
         if (user.getState() == UserState.LOBBY) {
-            ProgressHandler.updateState(player.getUniqueId(), ProgressHandler.getLastLocations().get(player.getUniqueId()), UserState.LOBBY);
+            UserStats stats = ProgressHandler.getLastStats().get(player.getUniqueId());
+            ProgressHandler.updateState(
+                    player.getUniqueId(),
+                    ProgressHandler.getLastLocations().get(player.getUniqueId()),
+                    new UserStats(
+                            UserState.LOBBY,
+                            stats == null ? 20 : stats.food(),
+                            stats == null ? 20 : stats.saturation(),
+                            stats == null ? 20 : stats.health()
+                    )
+            );
         }
 
         ProgressHandler.saveWorld(completedItems);
@@ -145,7 +188,7 @@ public class BorderHandler {
             World worldEnd = Bukkit.getWorld("world_the_end");
 
             if (world == null || worldNether == null || worldEnd == null) {
-                LOGGER.sendMessage(Component.text("[" + BorderHoardersPlugin.getPluginName() + "] Cannot sync border, one or more worlds are missing.", Colours.RED));
+                LOGGER.sendMessage(Component.text("[" + BorderHoarderPlugin.getPluginName() + "] Cannot sync border, one or more worlds are missing.", Colours.RED));
                 return;
             }
 
@@ -153,19 +196,19 @@ public class BorderHandler {
 
             WorldBorder borderWorld = world.getWorldBorder();
             borderWorld.setCenter(576.50, -517.50);
-            borderWorld.setSize((1 + (2 * getTotalItems())), 1);
+            borderWorld.changeSize((1 + (2 * getTotalItems())), 20);
 
             WorldBorder borderNether = worldNether.getWorldBorder();
             borderNether.setCenter(72.5, -64.5);
-            borderNether.setSize((1 + (2 * getTotalItems())), 1);
+            borderNether.changeSize((1 + (2 * getTotalItems())), 20);
 
             WorldBorder borderEnd = worldEnd.getWorldBorder();
             borderEnd.setCenter(0.5, 0.5);
-            borderEnd.setSize((1 + (32 * getTotalItems())), 1);
+            borderEnd.changeSize((1 + (32 * getTotalItems())), 20);
 
             WorldBorder borderSpawn = spawnWorld.getWorldBorder();
             borderSpawn.setCenter(0.5, 0.5);
-            borderSpawn.setSize(100, 0);
+            borderSpawn.changeSize(100, 0);
 
             for (Entity entity : spawnWorld.getEntities()) {
                 if (entity instanceof TextDisplay && !(textDisplays.containsValue(entity))) {
@@ -181,11 +224,29 @@ public class BorderHandler {
                 deaths += player.getStatistic(Statistic.DEATHS);
             }
 
-            createText(92.0f, Component.text("Items Collected: " + getTotalItems() + "/" + BoarderItem.values().length + " (" + (int) (((double) getTotalItems() / (double) BoarderItem.values().length) * 100) + "%)"));
-            createText(91.7f, Component.text("Area Unlocked: " + formatNumber(unlocked) + " / " + formatNumber(available) + " (" + (int) (((double) unlocked / (double) available) * 100) + "%)"));
-            createText(91.4f, Component.text("Deaths: " + formatNumber(deaths)));
+            // Create spawn holograms
+            createHologramText(92.0f, Component.text("Items Collected: " + getTotalItems() + "/" + BoarderItem.values().length + " (" + (int) (((double) getTotalItems() / (double) BoarderItem.values().length) * 100) + "%)"));
+            createHologramText(91.7f, Component.text("Area Unlocked: " + formatNumber(unlocked) + " / " + formatNumber(available) + " (" + (int) (((double) unlocked / (double) available) * 100) + "%)"));
+            createHologramText(91.4f, Component.text("Deaths: " + formatNumber(deaths)));
+
+            createWallText(0.5f, 94.0f, -12.0f, Component.text("Border Hoarders v2").color(Colours.GRAY));
+            createWallText(0.5f, 93.7f, -12.0f, Component.text("by TechStreet").color(Colours.GRAY));
+
+            // Create the info sign to explain /search command to players.
+            Location signLocation = new Location(spawnWorld, 3, 90, -9);
+
+            if (signLocation.getBlock().getType() != Material.OAK_SIGN) {
+                spawnWorld.setBlockData(signLocation, Bukkit.createBlockData(Material.OAK_SIGN, "[rotation=2]"));
+                Sign sign = (Sign) signLocation.getBlock().getState();
+                SignSide side = sign.getSide(Side.FRONT);
+                side.line(0, Component.text("Tip: Use /search").style(Style.style(Colours.WHITE, TextDecoration.ITALIC)));
+                side.line(1, Component.text("to view & search").style(Style.style(Colours.WHITE, TextDecoration.ITALIC)));
+                side.line(2, Component.text("your missing items").style(Style.style(Colours.WHITE, TextDecoration.ITALIC)));
+                side.line(3, Component.text("from the game.").style(Style.style(Colours.WHITE, TextDecoration.ITALIC)));
+                sign.update(true);
+            }
         } catch (Exception e) {
-            LOGGER.sendMessage(Component.text("[" + BorderHoardersPlugin.getPluginName() + "] Cannot sync border, " + e, Colours.RED));
+            LOGGER.sendMessage(Component.text("[" + BorderHoarderPlugin.getPluginName() + "] Cannot sync border, " + e, Colours.RED));
         }
     }
 
@@ -250,7 +311,7 @@ public class BorderHandler {
      * @param y         the Y-coordinate for the TextDisplay
      * @param component the text component to display
      */
-    public void createText(float y, Component component) {
+    public void createHologramText(float y, Component component) {
         TextDisplay armorStand = (TextDisplay) textDisplays.getOrDefault(y, null);
         if (armorStand == null) armorStand = spawnWorld.spawn(new Location(spawnWorld, 4.5, y, -6), TextDisplay.class);
         textDisplays.put(y, armorStand);
@@ -260,6 +321,25 @@ public class BorderHandler {
         armorStand.setAlignment(TextDisplay.TextAlignment.CENTER);
         armorStand.setSeeThrough(true);
         armorStand.setShadowed(true);
+    }
+
+    /**
+     * Creates or updates a TextDisplay at the specified Y-coordinate with the given component, intended for wall display.
+     *
+     * @param x         the X-coordinate for the TextDisplay
+     * @param y         the Y-coordinate for the TextDisplay
+     * @param z         the Z-coordinate for the TextDisplay
+     * @param component the text component to display
+     */
+    public void createWallText(float x, float y, float z, Component component) {
+        TextDisplay armorStand = (TextDisplay) textDisplays.getOrDefault(y, null);
+        if (armorStand == null) armorStand = spawnWorld.spawn(new Location(spawnWorld, x, y, z), TextDisplay.class);
+        textDisplays.put(y, armorStand);
+
+        armorStand.text(component);
+        armorStand.setAlignment(TextDisplay.TextAlignment.CENTER);
+        armorStand.setSeeThrough(true);
+        armorStand.setShadowed(false);
     }
 
     /**

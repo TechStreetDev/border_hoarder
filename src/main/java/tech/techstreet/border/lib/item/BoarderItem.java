@@ -2,9 +2,8 @@
  * Copyright (C) 2026 TechStreetDev
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Affero General Public License version 3
+ * as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,7 +19,7 @@ package tech.techstreet.border.lib.item;
 public enum BoarderItem {
 
     /**
-     * List of all Minecraft items as of version 1.21.11
+     * List of all Minecraft items as of version 26.1.1
      */
 
     ACACIA_BOAT,
@@ -240,6 +239,7 @@ public enum BoarderItem {
     CHICKEN,
     CHIPPED_ANVIL,
     CHISELED_BOOKSHELF,
+    CHISELED_CINNABAR,
     CHISELED_COPPER,
     CHISELED_DEEPSLATE,
     CHISELED_NETHER_BRICKS,
@@ -249,10 +249,19 @@ public enum BoarderItem {
     CHISELED_RESIN_BRICKS,
     CHISELED_SANDSTONE,
     CHISELED_STONE_BRICKS,
+    CHISELED_SULFUR,
     CHISELED_TUFF,
     CHISELED_TUFF_BRICKS,
     CHORUS_FLOWER,
     CHORUS_FRUIT,
+    CINNABAR,
+    CINNABAR_BRICKS,
+    CINNABAR_BRICK_SLAB,
+    CINNABAR_BRICK_STAIRS,
+    CINNABAR_BRICK_WALL,
+    CINNABAR_SLAB,
+    CINNABAR_STAIRS,
+    CINNABAR_WALL,
     CLAY,
     CLAY_BALL,
     CLOCK,
@@ -537,6 +546,7 @@ public enum BoarderItem {
     GOLDEN_BOOTS,
     GOLDEN_CARROT,
     GOLDEN_CHESTPLATE,
+    GOLDEN_DANDELION,
     GOLDEN_HELMET,
     GOLDEN_HOE,
     GOLDEN_HORSE_ARMOR,
@@ -791,6 +801,7 @@ public enum BoarderItem {
     MUSIC_DISC_13,
     MUSIC_DISC_5,
     MUSIC_DISC_BLOCKS,
+    MUSIC_DISC_BOUNCE,
     MUSIC_DISC_CAT,
     MUSIC_DISC_CHIRP,
     MUSIC_DISC_CREATOR,
@@ -965,6 +976,10 @@ public enum BoarderItem {
     POLISHED_BLACKSTONE_SLAB,
     POLISHED_BLACKSTONE_STAIRS,
     POLISHED_BLACKSTONE_WALL,
+    POLISHED_CINNABAR,
+    POLISHED_CINNABAR_SLAB,
+    POLISHED_CINNABAR_STAIRS,
+    POLISHED_CINNABAR_WALL,
     POLISHED_DEEPSLATE,
     POLISHED_DEEPSLATE_SLAB,
     POLISHED_DEEPSLATE_STAIRS,
@@ -975,6 +990,10 @@ public enum BoarderItem {
     POLISHED_GRANITE,
     POLISHED_GRANITE_SLAB,
     POLISHED_GRANITE_STAIRS,
+    POLISHED_SULFUR,
+    POLISHED_SULFUR_SLAB,
+    POLISHED_SULFUR_STAIRS,
+    POLISHED_SULFUR_WALL,
     POLISHED_TUFF,
     POLISHED_TUFF_SLAB,
     POLISHED_TUFF_STAIRS,
@@ -983,6 +1002,7 @@ public enum BoarderItem {
     POPPY,
     PORKCHOP,
     POTATO,
+    POTENT_SULFUR,
     POTION,
     POWDER_SNOW_BUCKET,
     POWERED_RAIL,
@@ -1215,6 +1235,16 @@ public enum BoarderItem {
     STRIPPED_WARPED_STEM,
     SUGAR,
     SUGAR_CANE,
+    SULFUR,
+    SULFUR_BRICKS,
+    SULFUR_BRICK_SLAB,
+    SULFUR_BRICK_STAIRS,
+    SULFUR_BRICK_WALL,
+    SULFUR_CUBE_BUCKET,
+    SULFUR_SLAB,
+    SULFUR_SPIKE,
+    SULFUR_STAIRS,
+    SULFUR_WALL,
     SUNFLOWER,
     SUSPICIOUS_STEW,
     SWEET_BERRIES,

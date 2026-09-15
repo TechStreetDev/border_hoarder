@@ -18,14 +18,13 @@ package tech.techstreet.border.command.impl;
 
 import cloud.commandframework.Command;
 import cloud.commandframework.paper.PaperCommandManager;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import tech.techstreet.border.BorderHoarderPlugin;
 import tech.techstreet.border.command.SystemCommand;
-import tech.techstreet.border.lib.user.User;
-import tech.techstreet.border.lib.user.UserManager;
-import tech.techstreet.border.lib.user.UserState;
 
-public class LobbyCommand extends SystemCommand {
+public class DebugCommand extends SystemCommand {
 
     /**
      * Creates a command for the given command manager.
@@ -35,12 +34,16 @@ public class LobbyCommand extends SystemCommand {
      */
     @Override
     public Command<CommandSender> createCommand(final PaperCommandManager<CommandSender> manager) {
-        return manager.commandBuilder("lobby", "spawn", "hub")
+        return manager.commandBuilder("debug")
+                .literal("unlock")
+                .literal("all")
                 .handler(commandContext -> {
                     final Player player = (Player) commandContext.getSender();
-                    final User user = UserManager.of(player);
+                    for (final Material item : Material.values()) {
+                        BorderHoarderPlugin.getBorderHandler().addCompletedItem(player, item);
+                    }
 
-                    user.setState(UserState.LOBBY);
+                    player.sendMessage("Done.");
                 }).build();
     }
 }

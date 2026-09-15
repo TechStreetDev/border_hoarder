@@ -2,9 +2,8 @@
  * Copyright (C) 2026 TechStreetDev
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Affero General Public License version 3
+ * as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -204,6 +203,7 @@ public enum BlacklistedItems {
     POTTED_DEAD_BUSH,
     POTTED_FERN,
     POTTED_FLOWERING_AZALEA_BUSH,
+    POTTED_GOLDEN_DANDELION,
     POTTED_JUNGLE_SAPLING,
     POTTED_LILY_OF_THE_VALLEY,
     POTTED_MANGROVE_PROPAGULE,
@@ -257,6 +257,7 @@ public enum BlacklistedItems {
     STRIDER_SPAWN_EGG,
     STRUCTURE_BLOCK,
     STRUCTURE_VOID,
+    SULFUR_CUBE_SPAWN_EGG,
     SUSPICIOUS_GRAVEL,
     SUSPICIOUS_SAND,
     SWEET_BERRY_BUSH,

@@ -2,9 +2,8 @@
  * Copyright (C) 2026 TechStreetDev
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Affero General Public License version 3
+ * as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -28,7 +27,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.jetbrains.annotations.Nullable;
-import tech.techstreet.border.BorderHoardersPlugin;
+import tech.techstreet.border.BorderHoarderPlugin;
 import tech.techstreet.border.gui.Button;
 import tech.techstreet.border.gui.Menu;
 import tech.techstreet.border.gui.MenuInstance;
@@ -72,23 +71,32 @@ public class User {
 
     public void setState(UserState state) {
         // Save current location before changing state.
-        BorderHoardersPlugin.getBorderHandler().saveLocation(player);
+        BorderHoarderPlugin.getBorderHandler().saveLocation(player);
         this.state = state;
 
         if (state == UserState.PLAY) {
             Location location = ProgressHandler.getLastLocations().get(player.getUniqueId());
-            if (location == null) location = new Location(Bukkit.getWorld("world"), 576.50, 67, -517.50);
+            UserStats stats = ProgressHandler.getLastStats().getOrDefault(player.getUniqueId(), new UserStats(UserState.PLAY, 20, 20, 20));
+            if (location == null || location.getWorld().getName().equals("spawn")) {
+                location = new Location(Bukkit.getWorld("world"), 576.50, 67, -517.50);
+            }
 
             player.teleport(location);
+            player.setHealth(stats.health());
+            player.setFoodLevel(stats.food());
+            player.setSaturation(stats.saturation());
             player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0F, 1.0F);
-            player.setScoreboard(BorderHoardersPlugin.getBorderHandler().getScoreboard());
+            player.setScoreboard(BorderHoarderPlugin.getBorderHandler().getScoreboard());
             player.setGameMode(GameMode.SURVIVAL);
         }
 
         if (state == UserState.LOBBY) {
-            player.teleport(new Location(Bukkit.getWorld("world_spawn"), 0.5, 90, 0.5, 180, 0));
+            player.teleport(new Location(Bukkit.getWorld("spawn"), 0.5, 90, 0.5, 180, 0));
+            player.setHealth(20);
+            player.setFoodLevel(20);
+            player.setSaturation(20);
             player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0F, 1.0F);
-            player.setScoreboard(BorderHoardersPlugin.getBorderHandler().getScoreboard());
+            player.setScoreboard(BorderHoarderPlugin.getBorderHandler().getScoreboard());
             player.setGameMode(GameMode.SURVIVAL);
         }
 
@@ -98,9 +106,9 @@ public class User {
 
         objective.getScore(player.getName()).setScore(getCounter());
 
-        BorderHoardersPlugin.getBorderHandler().saveLocation(player); // Save state changes
-        BorderHoardersPlugin.getBorderHandler().syncBoarder();
-        Bukkit.getScheduler().runTaskLater(BorderHoardersPlugin.getInstance(), run -> BorderHoardersPlugin.getBorderHandler().syncBoarder(), 10L);
+        BorderHoarderPlugin.getBorderHandler().saveLocation(player); // Save state changes
+        BorderHoarderPlugin.getBorderHandler().syncBoarder();
+        Bukkit.getScheduler().runTaskLater(BorderHoarderPlugin.getInstance(), run -> BorderHoarderPlugin.getBorderHandler().syncBoarder(), 10L);
     }
 
     /**
@@ -196,7 +204,6 @@ public class User {
 
     /**
      * Get the unique ID of the user.
-     *
      * @return the unique UUID.
      */
     public UUID getUniqueId() {

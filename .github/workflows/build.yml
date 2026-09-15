@@ -28,12 +28,13 @@ jobs:
 
       - name: Rename JAR to include Minecraft version
         run: |
-          for f in build/libs/BorderHoarders-*-all.jar; do
+          for f in build/libs/BorderHoarder-*-all.jar; do
             base=$(basename "$f" -all.jar)
-            mv "$f" "build/libs/BorderHoarders-1.21.11-${base#BorderHoarders-}.jar"
+            mv "$f" "build/libs/BorderHoarder-1.21.11-${base#BorderHoarder-}.jar"
           done
 
       - name: Upload Jarfile
         uses: actions/upload-artifact@v4
         with:
-          path: build/libs/BorderHoarders-1.21.11-*.jar
+          name: BorderHoarder
+          path: build/libs/BorderHoarder-1.21.11-*.jar

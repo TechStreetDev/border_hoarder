@@ -14,30 +14,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package tech.techstreet.border.gui.item;
+package tech.techstreet.border.lib.user;
 
-import net.kyori.adventure.text.format.TextColor;
-
-public class CustomColour implements TextColor {
-    int value;
-
-    /**
-     * Constructor for CustomColour.
-     *
-     * @param value The RGB integer value of the colour.
-     */
-    public CustomColour(final int value) {
-        this.value = value;
-    }
-
-    /**
-     * Gets the integer value of the colour.
-     *
-     * @return The RGB integer value.
-     */
-    @Override
-    public int value() {
-        return value;
-    }
-
+public record UserStats(UserState state, int food, float saturation, double health) {
 }

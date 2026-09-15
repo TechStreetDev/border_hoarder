@@ -2,9 +2,8 @@
  * Copyright (C) 2026 TechStreetDev
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Affero General Public License version 3
+ * as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -27,9 +26,11 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import tech.techstreet.border.BorderHoardersPlugin;
+import tech.techstreet.border.BorderHoarderPlugin;
+import tech.techstreet.border.command.impl.DebugCommand;
 import tech.techstreet.border.command.impl.LobbyCommand;
 import tech.techstreet.border.command.impl.SearchCommand;
+import tech.techstreet.border.command.impl.UpdateCommand;
 
 import java.util.function.Function;
 
@@ -41,7 +42,7 @@ public class CommandHandler {
      *
      * @param instance The main plugin instance.
      */
-    public CommandHandler(BorderHoardersPlugin instance) {
+    public CommandHandler(BorderHoarderPlugin instance) {
         final Function<CommandTree<CommandSender>, CommandExecutionCoordinator<CommandSender>> executionCoordinatorFunction =
                 CommandExecutionCoordinator.simpleCoordinator();
 
@@ -103,7 +104,12 @@ public class CommandHandler {
     public void load() {
         register(
                 new LobbyCommand(),
-                new SearchCommand()
+                new SearchCommand(),
+                new UpdateCommand()
         );
+
+        if (BorderHoarderPlugin.getInstance().getConfig().getBoolean("debug", false)) {
+            register(new DebugCommand());
+        }
     }
 }

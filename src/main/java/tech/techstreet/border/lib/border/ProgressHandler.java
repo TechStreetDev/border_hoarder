@@ -2,9 +2,8 @@
  * Copyright (C) 2026 TechStreetDev
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Affero General Public License version 3
+ * as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -25,6 +24,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import tech.techstreet.border.lib.item.BoarderItem;
 import tech.techstreet.border.lib.user.UserState;
+import tech.techstreet.border.lib.user.UserStats;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -37,9 +37,10 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 public class ProgressHandler {
-    private static final File file = new File("world/data/border.dat");
+    private static final File oldFile = new File("world/data/border.dat");
+    private static final File file = new File("world/data/border/data.dat");
     private static final HashMap<UUID, Location> lastLocations = new HashMap<>();
-    private static final HashMap<UUID, UserState> lastStates = new HashMap<>();
+    private static final HashMap<UUID, UserStats> lastStats = new HashMap<>();
 
     /**
      * Gzip and Base64 encode a JSON string.
@@ -104,7 +105,10 @@ public class ProgressHandler {
                     location.addProperty("z", lastLocations.get(uuid).getZ());
                     location.addProperty("pitch", lastLocations.get(uuid).getPitch());
                     location.addProperty("yaw", lastLocations.get(uuid).getYaw());
-                    location.addProperty("state", lastStates.get(uuid).name());
+                    location.addProperty("state", lastStats.get(uuid).state().name());
+                    location.addProperty("food", lastStats.get(uuid).food());
+                    location.addProperty("saturation", lastStats.get(uuid).saturation());
+                    location.addProperty("health", lastStats.get(uuid).health());
 
                     locations.add(uuid.toString(), location);
                 }
@@ -114,6 +118,7 @@ public class ProgressHandler {
             String jsonString = new Gson().toJson(jsonObject);
             String compressedData = gzipAndBase64(jsonString);
 
+            if (!file.getParentFile().exists()) file.getParentFile().mkdirs();
             Files.writeString(Path.of(file.getPath()), compressedData);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -126,8 +131,14 @@ public class ProgressHandler {
      * @return The list of completed BoarderItems.
      * @throws Exception If an error occurs during loading.
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static List<BoarderItem> loadWorld() throws Exception {
         List<BoarderItem> loadedItems = new ArrayList<>();
+        if (oldFile.exists()) {
+            if (!file.getParentFile().exists()) file.getParentFile().mkdirs();
+            Files.move(oldFile.toPath(), file.toPath());
+        }
+
         if (!file.exists()) return loadedItems;
 
         JsonObject jsonObject = JsonParser.parseString(base64AndGunzip(Files.readString(file.toPath()))).getAsJsonObject();
@@ -142,7 +153,13 @@ public class ProgressHandler {
         if (locations != null) {
             for (String uuid : locations.keySet()) {
                 try {
-                    lastStates.put(UUID.fromString(uuid), UserState.valueOf(locations.getAsJsonObject(uuid).get("state").getAsString()));
+                    JsonObject userData = locations.getAsJsonObject(uuid);
+                    UserState state = UserState.valueOf(userData.get("state").getAsString());
+                    int food = userData.has("food") ? userData.get("food").getAsInt() : 20;
+                    float saturation = userData.has("saturation") ? userData.get("saturation").getAsFloat() : 20f;
+                    double health = userData.has("health") ? userData.get("health").getAsFloat() : 20d;
+
+                    lastStats.put(UUID.fromString(uuid), new UserStats(state, food, saturation, health));
                     lastLocations.put(UUID.fromString(uuid), new Location(
                             Bukkit.getWorld(locations.getAsJsonObject(uuid).get("world").getAsString()),
                             locations.getAsJsonObject(uuid).get("x").getAsDouble(),
@@ -164,11 +181,11 @@ public class ProgressHandler {
      *
      * @param uuid     the UUID of the user.
      * @param location the last known location of the user.
-     * @param state    the last known state of the user.
+     * @param stats    the last known stats of the user.
      */
-    public static void updateState(UUID uuid, Location location, UserState state) {
+    public static void updateState(UUID uuid, Location location, UserStats stats) {
         lastLocations.put(uuid, location);
-        lastStates.put(uuid, state);
+        lastStats.put(uuid, stats);
     }
 
     /**
@@ -176,8 +193,8 @@ public class ProgressHandler {
      *
      * @return A map of user UUIDs to their last known UserState.
      */
-    public static HashMap<UUID, UserState> getLastStates() {
-        return lastStates;
+    public static HashMap<UUID, UserStats> getLastStats() {
+        return lastStats;
     }
 
     /**

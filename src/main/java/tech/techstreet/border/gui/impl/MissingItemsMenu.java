@@ -2,9 +2,8 @@
  * Copyright (C) 2026 TechStreetDev
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Affero General Public License version 3
+ * as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -24,7 +23,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import tech.techstreet.border.BorderHoardersPlugin;
+import tech.techstreet.border.BorderHoarderPlugin;
 import tech.techstreet.border.gui.Button;
 import tech.techstreet.border.gui.Menu;
 import tech.techstreet.border.gui.item.BaseItems;
@@ -45,14 +44,14 @@ public class MissingItemsMenu extends Menu {
         super(user);
         this.page = page;
         this.isSearch = false;
-        this.missingItems = BorderHoardersPlugin.getBorderHandler().getMissingItems();
+        this.missingItems = BorderHoarderPlugin.getBorderHandler().getMissingItems();
     }
 
     public MissingItemsMenu(User user, int page, String query) {
         super(user);
         this.page = page;
         this.isSearch = true;
-        this.missingItems = BorderHoardersPlugin.getBorderHandler().getMissingItems()
+        this.missingItems = BorderHoarderPlugin.getBorderHandler().getMissingItems()
                 .stream().filter(item -> item.name().toLowerCase().replaceAll("_", "").contains(query)).toList();
     }
 

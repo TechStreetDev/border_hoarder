@@ -2,9 +2,8 @@
  * Copyright (C) 2026 TechStreetDev
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Affero General Public License version 3
+ * as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -25,11 +24,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import tech.techstreet.border.BorderHoardersPlugin;
+import tech.techstreet.border.BorderHoarderPlugin;
 import tech.techstreet.border.lib.border.ProgressHandler;
 import tech.techstreet.border.lib.user.User;
 import tech.techstreet.border.lib.user.UserManager;
 import tech.techstreet.border.lib.user.UserState;
+import tech.techstreet.border.lib.user.UserStats;
 
 public class PlayerConnectionEvent implements Listener {
 
@@ -45,13 +45,21 @@ public class PlayerConnectionEvent implements Listener {
             return;
         }
 
-        if (BorderHoardersPlugin.getBorderHandler() == null || BorderHoardersPlugin.getBorderHandler().getCompletedItems() == null) {
+        if (BorderHoarderPlugin.getBorderHandler() == null || BorderHoarderPlugin.getBorderHandler().getCompletedItems() == null) {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Component.text("Server is not started yet."));
             return;
         }
 
-        if (BorderHoardersPlugin.getBorderHandler().getSpawnWorld() == null) {
+        if (BorderHoarderPlugin.getBorderHandler().getSpawnWorld() == null) {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Component.text("Server world is not setup correctly."));
+            return;
+        }
+
+        if (BorderHoarderPlugin.getChunkUpgradeHandler() != null && BorderHoarderPlugin.getChunkUpgradeHandler().isRunning()) {
+            int upgraded = BorderHoarderPlugin.getChunkUpgradeHandler().getUpgraded();
+            int total = BorderHoarderPlugin.getChunkUpgradeHandler().getTotal();
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Component.text(
+                    "The server is upgrading terrain (" + upgraded + "/" + total + " chunks), please try again shortly."));
         }
     }
 
@@ -64,11 +72,11 @@ public class PlayerConnectionEvent implements Listener {
     public void onEvent(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         UserManager.update(player);
-        BorderHoardersPlugin.getBorderHandler().syncBoarder();
+        BorderHoarderPlugin.getBorderHandler().syncBoarder();
         User user = UserManager.of(player);
 
         // Send player back to previous state, but default to the lobby
-        user.setState(ProgressHandler.getLastStates().getOrDefault(player.getUniqueId(), UserState.LOBBY));
+        user.setState(ProgressHandler.getLastStats().getOrDefault(player.getUniqueId(), new UserStats(UserState.LOBBY, 20, 20, 20)).state());
     }
 
     /**
